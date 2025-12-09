@@ -1,0 +1,7 @@
+{
+  "name": "coloretto-client-wrapper",
+  "private": true,
+  "scripts": {
+    "dev": "cd .. && npm start"
+  }
+}

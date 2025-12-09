@@ -1,0 +1,54 @@
+import { useState } from "react";
+
+import { Components } from "../../shared";
+import { HandCardIndicator } from "../hand-card-indicator";
+import { Timer } from "../timer";
+
+import { getHandCardIndicator } from "./heplers";
+import { RuleSidebar } from "./rule-sidebar/rule-sidebar";
+import { TCard } from "./types";
+
+const { Button, Card, Flex, Image } = Components;
+
+type TPlayerGameBarProps = {
+  cards: TCard[];
+  isCurrentTurn?: boolean;
+}
+
+export const PlayerGameBar = (props: TPlayerGameBarProps) => {
+  const [isRuleSidebarOpen, setRuleSidebarOpen] = useState(false);
+  const { cards = [], isCurrentTurn = false } = props;
+
+  const getHandCardIndicators = (card: TCard, idx: number) => {
+    return (
+      <HandCardIndicator
+        key={`${card.color}-${card.type}-${idx}`}
+        count={card.count}
+        indicator={getHandCardIndicator(card)}
+      />
+    );
+  };
+
+  return(
+    <Flex gap={5}>
+      <Card animation='none' padding='sm' height={65} width={80}>
+        <Flex align="center" justify="center" fullWidth fullHeight>
+          { isCurrentTurn ? <Timer duration={40}/> : <Image variant="lockIcon" width={25}/>}
+        </Flex>
+      </Card>
+      <Flex align="center" direction="row" gap={5} fullWidth>
+        <Card  animation='none' fullWidth>
+          <Flex direction="row" gap={20} fullWidth justify="center">
+            {cards.map((card, idx) => getHandCardIndicators(card, idx))}
+          </Flex>
+        </Card>
+        <Button variant="primary" height={63} width={63} onClick={() => setRuleSidebarOpen(true)}>
+          <Image variant="bookIcon"/>
+        </Button>
+
+        <RuleSidebar isSidebarOpen={isRuleSidebarOpen} onSidebarClose={setRuleSidebarOpen}/>
+      </Flex>
+
+    </Flex>
+  );
+}
