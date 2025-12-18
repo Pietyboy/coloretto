@@ -1,9 +1,10 @@
 import { useState } from "react";
 
-import { Alert, message, Spin } from "antd";
-import { useLocation, useNavigate } from "react-router";
+import { Alert, Spin } from "antd";
+import { useNavigate } from "react-router";
 
 import { VerticalTickers } from "../../features/vertical-tickers";
+import { useNotify } from "../../hooks/useNotify";
 import { Components } from "../../shared";
 import { useLoginMutation, useRegisterMutation } from "../../store/api/auth-api";
 import { useAppDispatch } from "../../store/hooks";
@@ -23,9 +24,8 @@ export const LoginPage = () => {
   const [login, { isLoading: isLoginLoading }] = useLoginMutation();
   const [register, { isLoading: isRegisterLoading }] = useRegisterMutation();
   const dispatch = useAppDispatch();
+  const notify = useNotify();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = (location.state as null | { from?: { pathname?: string } })?.from?.pathname || "/";
   const [form] = Form.useForm<LoginFormValues>();
   const isLoading = isLoginLoading || isRegisterLoading;
 
@@ -49,7 +49,7 @@ export const LoginPage = () => {
 
       dispatch(setAuthToken(accessToken));
       dispatch(setUsername(data?.username ?? values.username));
-      navigate(from);
+      navigate("/", { replace: true });
     } catch (e) {
       console.log(e);
       const apiMessage = (e as { data?: { error?: string; message?: string }; message?: string })?.data?.error
@@ -57,7 +57,7 @@ export const LoginPage = () => {
         || (e as { message?: string }).message
         || "Не удалось выполнить запрос. Проверьте данные и попробуйте снова.";
       setError(apiMessage);
-      message.error(apiMessage);
+      notify('error', apiMessage);
     }
   };
 

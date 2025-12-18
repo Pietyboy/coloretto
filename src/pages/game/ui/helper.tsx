@@ -23,26 +23,30 @@ const mapRowCards = (cards: null | TApiCard[]): TStoreCard[] =>
 export const MapGameData = (data: TGameStateApi, playerId?: number, playerNickname?: string): TGameState => {
   const players = data.players ?? [];
   const currentPlayer =
-    players.find(player => player.playerId === playerId)
-    || players.find(player => player.nickname === playerNickname)
-    || players[0];
+    (playerId !== undefined && playerId !== null
+      ? players.find(player => player.playerId === playerId)
+      : undefined)
+    || (playerNickname
+      ? players.find(player => player.nickname === playerNickname)
+      : undefined);
 
   return {
     cardsCount: data.remainingCardsCount,
     currentTurnStartTime: data.currentTurnStartTime,
     gameId: data.gameId,
-    otherPlayersInfo: data.players
-      .filter(player => player.playerId !== currentPlayer?.playerId)
-      .map(mapPlayer),
+    otherPlayersInfo: (currentPlayer
+      ? players.filter(player => player.playerId !== currentPlayer.playerId)
+      : players).map(mapPlayer),
     playerCount: data.maxPlayerCount,
     playerInfo: currentPlayer ? mapPlayer(currentPlayer) : null,
     rows: data.rows?.map(row => ({
       cards: mapRowCards(row.cards),
       cardsCount: row.cards?.length ?? 0,
-      isActive: row.isActive,
+      isActive: row.isActive ?? true,
       rowId: row.rowId,
     })) ?? [],
-    topCard: data.firstDeckCard.cardId
+    topCard: data.firstDeckCard?.cardId ?? null,
+    turnDuration: data.turnDuration,
   };
 };
 
@@ -55,7 +59,8 @@ export const groupCardsByColorAndType = (cards: null | TApiCard[] ): null | TPla
 
   cards.forEach(card => {
     const cardColor = card.color.toLowerCase();
-    const cardType = card.type.toLowerCase();
+    const rawType = card.type.toLowerCase();
+    const cardType = rawType === 'joker' && cardColor !== 'none' ? 'common' : rawType;
     const key = `${cardColor}__${cardType}`;
 
     const existing = map.get(key);
@@ -73,8 +78,10 @@ export const groupCardsByColorAndType = (cards: null | TApiCard[] ): null | TPla
 };
 
 export const normalizeColor = (color?: string): typeof CardColors[keyof typeof CardColors] => {
-  const normalized = color?.toLowerCase() as keyof typeof CardColors | undefined;
-  return (normalized && CardColors[normalized]) || CardColors.none;
+  const normalized = color?.toLowerCase();
+  if (normalized === 'pink') return CardColors.purple;
+  const key = normalized as keyof typeof CardColors | undefined;
+  return (key && CardColors[key]) || CardColors.none;
 };
 
 export const normalizeType = (type?: string): typeof CardType[keyof typeof CardType] => {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
 import { Button } from '../Button';
 import { Image } from '../Image';
@@ -19,11 +19,14 @@ export const Header = ({
   tabs = defaultHeaderTabs,
 }: HeaderProps) => {
 
+  const location = useLocation();
   const navigate = useNavigate();
   const [gamesMenuOpen, setGamesMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const gamesRef = useRef<HTMLDivElement>(null);
+
+  const isOnGamePage = location.pathname.startsWith('/game/') && !location.pathname.startsWith('/game/create');
 
   const onTabClick = (id: string) => {
     onTabChange?.(id)
@@ -66,7 +69,7 @@ export const Header = ({
             <ProfileWrapper ref={gamesRef}>
               <TabButton
                 type="button"
-                $active={false}
+                $active={isOnGamePage}
                 onClick={() => {
                   if (activeGames.length === 1) {
                     navigate(`/game/${activeGames[0].gameId}`);

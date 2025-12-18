@@ -9,6 +9,7 @@ const { Text } = Typography;
 export type TimerProps = {
   duration: number;
   onComplete?: () => void;
+  paused?: boolean;
 };
 
 const clampDuration = (value: number) => Math.max(0, Math.floor(value));
@@ -23,7 +24,7 @@ const formatTime = (seconds: number) => {
   return `${mins}:${secs}`;
 };
 
-export const Timer = ({ duration, onComplete }: TimerProps) => {
+export const Timer = ({ duration, onComplete, paused = false }: TimerProps) => {
   const [timeLeft, setTimeLeft] = useState(() => clampDuration(duration));
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -34,6 +35,7 @@ export const Timer = ({ duration, onComplete }: TimerProps) => {
   useEffect(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
 
+    if (paused) return undefined;
     if (timeLeft <= 0) return undefined;
 
     intervalRef.current = setInterval(() => {
@@ -51,7 +53,7 @@ export const Timer = ({ duration, onComplete }: TimerProps) => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [timeLeft, onComplete]);
+  }, [onComplete, paused, timeLeft]);
 
   const formatted = useMemo(() => formatTime(timeLeft), [timeLeft]);
 

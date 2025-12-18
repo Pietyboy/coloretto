@@ -6,6 +6,7 @@ export * from './Checkbox';
 export * from './ColorPicker';
 export * from './DatePicker';
 export * from './Drawer';
+export * from './ErrorBoundary';
 export * from './Flex';
 export * from './Form';
 export * from './Grid';

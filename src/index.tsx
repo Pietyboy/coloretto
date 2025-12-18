@@ -15,8 +15,15 @@ const { baseTheme } = Themes;
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
-const  theme = {
+const theme = {
   algorithm: antdTheme.darkAlgorithm,
+  components: {
+    Modal: {
+      contentBg: baseTheme.colors.surface,
+      footerBg: baseTheme.colors.surface,
+      headerBg: baseTheme.colors.surface,
+    },
+  },
   token: {
     borderRadius: 10,
     colorBgBase: baseTheme.colors.background,

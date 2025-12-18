@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 import { Card, Flex, Image, Typography } from "../../shared/ui/components";
 import { HandCardIndicator } from "../hand-card-indicator";
-import { getHandCardIndicator } from "../player-gamebar/heplers";
+import { getHandCardIndicator } from "../player-gamebar/helpers";
 import { Profile } from "../profile";
 import { Timer } from "../timer";
 
@@ -11,7 +11,9 @@ import { TCard } from "./types";
 type TPlayerGameBarProps = {
   cards: TCard[];
   isCurrentTurn?: boolean;
+  isPaused?: boolean;
   playerName?: null | string;
+  turnDuration?: number;
 }
 
 const IndicatorsGrid = styled.div<{ $columns: number }>`
@@ -22,7 +24,7 @@ const IndicatorsGrid = styled.div<{ $columns: number }>`
 `;
 
 export const OtherPlayerGameBar = (props: TPlayerGameBarProps) => {
-  const { cards = [], isCurrentTurn = false, playerName } = props;
+  const { cards = [], isCurrentTurn = false, isPaused = false, playerName, turnDuration = 40 } = props;
   const displayName = playerName || 'Игрок';
 
   const getHandCardIndicators = (card: TCard, idx: number) => (
@@ -42,7 +44,7 @@ export const OtherPlayerGameBar = (props: TPlayerGameBarProps) => {
       <Flex direction="row" justify="space-between">
         <Card animation='none' padding='sm' height={65} width={80}>
         <Flex align="center" justify="center" fullWidth fullHeight>
-          { isCurrentTurn ? <Timer duration={40}/> : <Image variant="lockIcon" width={25}/>}
+          { isCurrentTurn ? <Timer duration={turnDuration} paused={isPaused}/> : <Image variant="lockIcon" width={25}/>}
         </Flex>
         </Card>
         <Flex align="center" justify="center">

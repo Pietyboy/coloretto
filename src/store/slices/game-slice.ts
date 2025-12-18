@@ -16,7 +16,8 @@ const initialState: TGameState = {
     playerName: null,
   },
   rows: [],
-  topCard: null
+  topCard: null,
+  turnDuration: 40
 }
 
 export const gameSlice = createSlice({

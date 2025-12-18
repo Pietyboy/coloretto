@@ -33,4 +33,5 @@ export type TGameState = {
   playerInfo: null | TPlayerInfo;
   rows: TRow[];
   topCard: null | number;
+  turnDuration: null | number;
 };

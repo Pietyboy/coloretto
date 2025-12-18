@@ -17,5 +17,7 @@ export const getCardVariant = (card: CardLike): ImageVariant => {
     return 'jokerCard';
   }
 
-  return `${cardColor}Card` as ImageVariant;
+  const normalizedColor = cardColor === 'pink' ? 'purple' : cardColor;
+
+  return `${normalizedColor}Card` as ImageVariant;
 };

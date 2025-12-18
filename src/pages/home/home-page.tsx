@@ -5,6 +5,7 @@ import { Components } from '../../shared';
 import { Page } from '../../shared/ui/components';
 import { useGetGamesListQuery } from '../../store/api/game-api';
 import { TGameApi } from '../../store/api/types';
+
 const { Button, Flex, Input, Select, Spin } = Components;
 
 type StatusFilter = 'all' | 'finished' | 'in-progress';

@@ -4,7 +4,7 @@ import { Components } from "../../shared";
 import { HandCardIndicator } from "../hand-card-indicator";
 import { Timer } from "../timer";
 
-import { getHandCardIndicator } from "./heplers";
+import { getHandCardIndicator } from "./helpers";
 import { RuleSidebar } from "./rule-sidebar/rule-sidebar";
 import { TCard } from "./types";
 
@@ -13,11 +13,13 @@ const { Button, Card, Flex, Image } = Components;
 type TPlayerGameBarProps = {
   cards: TCard[];
   isCurrentTurn?: boolean;
+  isPaused?: boolean;
+  turnDuration?: number;
 }
 
 export const PlayerGameBar = (props: TPlayerGameBarProps) => {
   const [isRuleSidebarOpen, setRuleSidebarOpen] = useState(false);
-  const { cards = [], isCurrentTurn = false } = props;
+  const { cards = [], isCurrentTurn = false, isPaused = false, turnDuration = 40 } = props;
 
   const getHandCardIndicators = (card: TCard, idx: number) => {
     return (
@@ -33,7 +35,7 @@ export const PlayerGameBar = (props: TPlayerGameBarProps) => {
     <Flex gap={5}>
       <Card animation='none' padding='sm' height={65} width={80}>
         <Flex align="center" justify="center" fullWidth fullHeight>
-          { isCurrentTurn ? <Timer duration={40}/> : <Image variant="lockIcon" width={25}/>}
+          { isCurrentTurn ? <Timer duration={turnDuration} paused={isPaused}/> : <Image variant="lockIcon" width={25}/>}
         </Flex>
       </Card>
       <Flex align="center" direction="row" gap={5} fullWidth>
