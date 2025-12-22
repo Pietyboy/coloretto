@@ -1,5 +1,7 @@
 import { Components } from '../../shared';
 
+import { CARD_HEIGHT, CARD_WIDTH } from './constants';
+
 const { Card, Flex, Image } = Components;
 
 export type GameCardProps = {
@@ -8,9 +10,6 @@ export type GameCardProps = {
   variant: string;
   width?: number;
 };
-
-const CARD_WIDTH = 139;
-const CARD_HEIGHT = 195;
 
 export const GameCard = ({
   animation = 'parallax',

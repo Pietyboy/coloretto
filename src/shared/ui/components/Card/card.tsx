@@ -24,6 +24,13 @@ export const Card = ({
   animationRotation = 6,
   children,
   elevation = 1,
+  fullHeight,
+  fullWidth,
+  height,
+  overflow,
+  padding,
+  variant,
+  width,
   ...rest
 }: CardProps) => {
   const theme = useTheme() as ColorettoTheme;
@@ -33,11 +40,18 @@ export const Card = ({
   return (
     <AnimatedCardRoot
       {...rest}
+      $elevation={elevation}
+      $fullHeight={fullHeight}
+      $fullWidth={fullWidth}
+      $height={height}
+      $overflow={overflow}
+      $padding={padding}
+      $variant={variant}
+      $width={width}
       animation={animation}
       animationLevel={animationLevel}
       animationRotation={animationRotation}
       animationHoverShadow={hoverShadow}
-      elevation={elevation}
     >
       {children}
     </AnimatedCardRoot>

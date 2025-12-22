@@ -1,4 +1,4 @@
-export type NotificationType = 'success' | 'error' | 'info' | 'warning';
+export type NotificationType = 'error' | 'info' | 'success' | 'warning';
 
 export type Notification = {
   id: string;
@@ -6,3 +6,6 @@ export type Notification = {
   message: string;
 };
 
+export type NotificationContextValue = {
+  notify: (type: NotificationType, message: string) => void;
+};

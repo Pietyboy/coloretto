@@ -1,8 +1,8 @@
-type TPlayer = {
-  playerId: number,
-  nickname: string,
-  turnNumber: number
-}
+export type TPlayer = {
+  nickname: string;
+  playerId: number;
+  turnNumber: number;
+};
 
 export type TGame = {
   currentPlayersCount: number;
@@ -14,4 +14,8 @@ export type TGame = {
   players: TPlayer[];
   startingDate: string;
   turnDuration: number;
+};
+
+export type CreatePlayerFormValues = {
+  nickname: string;
 };

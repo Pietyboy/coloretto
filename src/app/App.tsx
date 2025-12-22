@@ -4,8 +4,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router';
 
 import { ProtectedRoute } from '../features/auth/protected-route';
 import { useAuthInit, useAuthState } from '../features/auth/use-auth';
-import { CreateGamePage, HomePage } from '../pages';
-import { GamePage } from '../pages/game';
+import { CreateGamePage, GamePage, HomePage } from '../pages';
 import { LoginPage } from '../pages/login';
 import { ACTIVE_GAMES_EVENT, clearActiveGames, getActiveGames } from '../shared/lib/active-games';
 import { defaultHeaderTabs, ErrorBoundary, GlobalErrorListener, Header } from '../shared/ui/components';
@@ -29,6 +28,7 @@ export const App = () => {
   const [logoutApi] = useLogoutMutation();
   const { authChecked, isAuth } = useAuthState();
   useAuthInit();
+
   const isLoginPage = location.pathname === '/login';
   const showHeader = !isLoginPage && authChecked && isAuth;
   const [activeGames, setActiveGames] = useState(() => getActiveGames());
@@ -65,14 +65,14 @@ export const App = () => {
       <GlobalErrorListener />
       <ErrorBoundary resetKey={location.pathname}>
         <Routes>
-          <Route path='/login' element={<LoginPage/>}/>
+          <Route path="/login" element={<LoginPage />} />
           <Route element={<ProtectedRoute />}>
-            <Route path='/' element={<HomePage />}/>
-            <Route path="/game/create" element={<CreateGamePage />}/>
-            <Route path="/game/:gameId" element={<GamePage/>}/>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/game/create" element={<CreateGamePage />} />
+            <Route path="/game/:gameId" element={<GamePage />} />
           </Route>
         </Routes>
       </ErrorBoundary>
     </NotificationProvider>
-  )
+  );
 };

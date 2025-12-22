@@ -1,11 +1,11 @@
-import { ImageVariant } from "../../shared/ui/components/Image/types";
+import type { ImageVariant } from '../../shared/ui/components/Image/types';
 
-import { CardColors, CardType } from "./constants";
-import { TCard } from "./types";
+import { CardColors, CardType } from './constants';
+import type { TCard } from './types';
 
 export const getHandCardIndicator = (card: TCard): ImageVariant => {
-  if (card.type === CardType.common){
-    switch(card.color) {
+  if (card.type === CardType.common) {
+    switch (card.color) {
       case CardColors.blue:
         return 'blueIndicator';
       case CardColors.brown:
@@ -22,7 +22,7 @@ export const getHandCardIndicator = (card: TCard): ImageVariant => {
         return 'yellowIndicator';
     }
   }
-  switch(card.type) {
+  switch (card.type) {
     case CardType[2]:
       return 'plusTwoIndicator';
     default:

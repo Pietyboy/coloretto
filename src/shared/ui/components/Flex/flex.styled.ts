@@ -9,8 +9,8 @@ export type FlexStyleProps = {
   align?: FlexAlign;
   justify?: FlexJustify;
   wrap?: boolean;
-  fullWidth?: boolean;
-  fullHeight?: boolean;
+  $fullWidth?: boolean;
+  $fullHeight?: boolean;
   marginBottom?: number;
   width?: number | string;
   height?: number | string;
@@ -18,7 +18,7 @@ export type FlexStyleProps = {
   maxWidth?: number | string;
   minHeight?: number | string;
   maxHeight?: number | string;
-}
+};
 
 export const FlexRoot = styled(AntdFlex).attrs<FlexStyleProps>(
   ({ align = 'stretch', direction = 'column', height, justify = 'start',width, wrap}) => ({
@@ -30,8 +30,10 @@ export const FlexRoot = styled(AntdFlex).attrs<FlexStyleProps>(
     wrap
   })
 )<FlexStyleProps>`
-  width: ${({ fullWidth, width }) => (fullWidth ? '100%' : width ? typeof width === 'number' ? `${width}px` : width : 'auto')};
-  height: ${({ fullHeight, height }) => (fullHeight ? '100%' : height ? typeof height === 'number' ? `${height}px` : height : 'auto')};
+  width: ${({ $fullWidth, width }) =>
+    $fullWidth ? '100%' : width ? (typeof width === 'number' ? `${width}px` : width) : 'auto'};
+  height: ${({ $fullHeight, height }) =>
+    $fullHeight ? '100%' : height ? (typeof height === 'number' ? `${height}px` : height) : 'auto'};
   flex-direction: ${({ direction = 'column' }) => (direction === 'row' ? 'row' : 'column')} !important;
   flex-wrap: ${({ wrap }) => (wrap ? 'wrap' : 'nowrap')};
   gap: ${({ gap = 0, theme }) => theme.spacing(gap)};

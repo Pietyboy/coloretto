@@ -12,11 +12,11 @@ const initialState: TGameState = {
     isCurrentTurn: false,
     isTurnAvailable: false,
     playerHand: [],
-    playerId: null,
-    playerName: null,
+    playerId: -1,
+    playerName: '',
   },
   rows: [],
-  topCard: null,
+  topCard: undefined,
   turnDuration: 40
 }
 
@@ -27,10 +27,10 @@ export const gameSlice = createSlice({
     setGameState: (_state, action: PayloadAction<Partial<TGameState>>) => {
       return { ..._state, ...action.payload }
     },
-    setPlayerHand: (state, action: PayloadAction<null | TPlayerInfo>) => {
+    setPlayerHand: (state, action: PayloadAction<TPlayerInfo>) => {
       state.playerInfo = action.payload
     },
-    setPlayerInfo: (state, action: PayloadAction<null | TPlayerInfo>) => {
+    setPlayerInfo: (state, action: PayloadAction<TPlayerInfo>) => {
       state.playerInfo = action.payload
     },
     setRows: (state, action: PayloadAction<TRow[]>) => {

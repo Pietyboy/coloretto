@@ -1,9 +1,9 @@
-import { CardColors, CardType } from '../../../features/player-gamebar/constants';
-import type { TCard as TPlayerCard } from '../../../features/player-gamebar/types';
-import { getCardVariant } from '../../../shared/lib/card-variant';
-import { ImageVariant } from '../../../shared/ui/components/Image/types';
-import { TCard as TApiCard, TGameState as TGameStateApi, TPlayer } from '../../../store/api/types';
-import { TGameState, TPlayerHand, TPlayerInfo, TRow, TCard as TStoreCard } from '../../../store/types';
+import { CardColors, CardType } from '../../features/player-gamebar/constants';
+import type { TCard as TPlayerCard } from '../../features/player-gamebar/types';
+import { TCard as TApiCard, TGameState as TGameStateApi, TPlayer } from '../../store/api/types';
+import { TGameState, TPlayerHand, TPlayerInfo, TCard as TStoreCard } from '../../store/types';
+
+import type { TGameStatus } from './types';
 
 const mapPlayer = (player: TPlayer): TPlayerInfo => ({
   isCurrentTurn: player.isCurrentTurn,
@@ -38,14 +38,14 @@ export const MapGameData = (data: TGameStateApi, playerId?: number, playerNickna
       ? players.filter(player => player.playerId !== currentPlayer.playerId)
       : players).map(mapPlayer),
     playerCount: data.maxPlayerCount,
-    playerInfo: currentPlayer ? mapPlayer(currentPlayer) : null,
+    playerInfo: currentPlayer ? mapPlayer(currentPlayer) : undefined,
     rows: data.rows?.map(row => ({
       cards: mapRowCards(row.cards),
       cardsCount: row.cards?.length ?? 0,
       isActive: row.isActive ?? true,
       rowId: row.rowId,
     })) ?? [],
-    topCard: data.firstDeckCard?.cardId ?? null,
+    topCard: data.firstDeckCard?.cardId,
     turnDuration: data.turnDuration,
   };
 };
@@ -98,5 +98,21 @@ export const mapHandToUiCards = (hand: null | TPlayerHand[]): TPlayerCard[] =>
     type: normalizeType(handItem.card.cardType),
   }));
 
-export  const mapRowCardsToVariants = (cards: TRow['cards']): ImageVariant[] =>
-  (cards ?? []).map(card => getCardVariant(card));
+export const getUiGameStatus = (state: unknown): TGameStatus => {
+  if (!state || typeof state !== 'object') return 'unknown';
+
+  const stateRecord = state as Record<string, unknown>;
+  const candidate = stateRecord.gameStatus ?? stateRecord.status ?? stateRecord.game_status;
+
+  if (typeof candidate === 'string') {
+    const normalized = candidate.toLowerCase();
+    if (normalized.includes('wait')) return 'waiting';
+    if (normalized.includes('pause')) return 'paused';
+    if (normalized.includes('finish')) return 'finished';
+    if (normalized.includes('progress') || normalized.includes('in_progress') || normalized.includes('inprogress')) return 'in-progress';
+  }
+
+  if (stateRecord.isGameFinished === true) return 'finished';
+
+  return 'unknown';
+};

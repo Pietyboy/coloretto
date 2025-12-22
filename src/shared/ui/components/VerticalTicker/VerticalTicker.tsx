@@ -18,7 +18,7 @@ export type VerticalTickerProps = {
 };
 
 const toCssSize = (value: number | string) => (typeof value === 'number' ? `${value}px` : value);
-const MotionTrack = motion(TickerTrack);
+const MotionTrack = motion.create(TickerTrack);
 
 export const VerticalTicker = ({
   direction = 'up',

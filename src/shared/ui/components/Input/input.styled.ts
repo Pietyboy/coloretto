@@ -4,9 +4,9 @@ import styled, { css } from 'styled-components';
 export type InputAppearance = 'ghost' | 'ghostDark' | 'solid';
 
 export type StyledInputProps = {
-  appearance?: InputAppearance;
-  fullWidth?: boolean;
-  width?: number | string;
+  $appearance?: InputAppearance;
+  $fullWidth?: boolean;
+  $width?: number | string;
 };
 
 const appearanceStyles: Record<InputAppearance, ReturnType<typeof css>> = {
@@ -28,10 +28,10 @@ const appearanceStyles: Record<InputAppearance, ReturnType<typeof css>> = {
 
 const baseInputStyles = css<StyledInputProps>`
   && {
-    width: ${({ fullWidth, width }) => {
-      if (fullWidth) return '100%';
-      if (typeof width === 'number') return `${width}px`;
-      if (typeof width === 'string') return width;
+    width: ${({ $fullWidth, $width }) => {
+      if ($fullWidth) return '100%';
+      if (typeof $width === 'number') return `${$width}px`;
+      if (typeof $width === 'string') return $width;
       return '100%';
     }};
     border-radius: ${({ theme }) => theme.radii.md};
@@ -39,7 +39,7 @@ const baseInputStyles = css<StyledInputProps>`
     padding: ${({ theme }) => theme.spacing(2)} ${({ theme }) => theme.spacing(3)};
     transition: border ${({ theme }) => theme.transitions.base}, box-shadow ${({ theme }) => theme.transitions.base};
 
-    ${({ appearance = 'ghost' }) => appearanceStyles[appearance]}
+    ${({ $appearance = 'ghost' }) => appearanceStyles[$appearance]}
 
     &.ant-input-status-error,
     &.ant-input-affix-wrapper-status-error {
@@ -55,8 +55,8 @@ const baseInputStyles = css<StyledInputProps>`
     &:focus-within,
     &.ant-input-affix-wrapper-focused,
     &.ant-input-focused {
-      background: ${({ appearance = 'ghost', theme }) =>
-        appearance === 'solid' ? theme.colors.background : 'transparent'};
+      background: ${({ $appearance = 'ghost', theme }) =>
+        $appearance === 'solid' ? theme.colors.background : 'transparent'};
       box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.accent};
     }
   }

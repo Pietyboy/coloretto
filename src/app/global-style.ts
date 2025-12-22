@@ -1,8 +1,6 @@
 import { createGlobalStyle } from 'styled-components';
 
 export const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Gugi&display=swap');
-
   *, *::before, *::after {
     box-sizing: border-box;
   }

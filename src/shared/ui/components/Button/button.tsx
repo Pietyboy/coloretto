@@ -14,8 +14,31 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ buttonRadii = 'md', children, fullHeight=false, fullWidth = false, size = 'md', variant = 'primary', ...rest }, ref) => (
-    <StyledButton buttonRadii={buttonRadii} ref={ref} variant={variant} size={size} fullWidth={fullWidth} fullHeight={fullHeight} {...rest}>
+  (
+    {
+      buttonRadii = 'md',
+      children,
+      fullHeight = false,
+      fullWidth = false,
+      height,
+      size = 'md',
+      variant = 'primary',
+      width,
+      ...rest
+    },
+    ref
+  ) => (
+    <StyledButton
+      $buttonRadii={buttonRadii}
+      $fullHeight={fullHeight}
+      $fullWidth={fullWidth}
+      $height={height}
+      $size={size}
+      $variant={variant}
+      $width={width}
+      ref={ref}
+      {...rest}
+    >
       {children}
     </StyledButton>
   )

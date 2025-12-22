@@ -13,8 +13,8 @@ export type TPlayerInfo = {
   isCurrentTurn: boolean;
   isTurnAvailable: boolean;
   playerHand: null | TPlayerHand[];
-  playerId: null | number;
-  playerName: null | string;
+  playerId: number;
+  playerName: string;
 };
 
 export type TRow = {
@@ -30,8 +30,8 @@ export type TGameState = {
   gameId: null | number;
   otherPlayersInfo: TPlayerInfo[];
   playerCount: null | number;
-  playerInfo: null | TPlayerInfo;
+  playerInfo?: TPlayerInfo;
   rows: TRow[];
-  topCard: null | number;
+  topCard?: number;
   turnDuration: null | number;
 };

@@ -9,4 +9,10 @@ export type TCardVariant = {
   PurpleCard: string;
   RedCard: string;
   YellowCard: string;
-}
+};
+
+export type TRevealedCard = {
+  cardId: number;
+  color: string;
+  type: string;
+};

@@ -2,13 +2,8 @@ import { Fragment } from 'react';
 
 import { Components } from '../../shared';
 
+import { sampleScores } from './constants';
 import { ScoreCard, ScoreTable } from './score-section.styled';
-
-const sampleScores = [
-  { player: 'Алиса', score: 24 },
-  { player: 'Борис', score: 18 },
-  { player: 'Кира', score: 12 },
-];
 
 const { Button, Flex, Typography } = Components;
 const { Heading } = Typography;

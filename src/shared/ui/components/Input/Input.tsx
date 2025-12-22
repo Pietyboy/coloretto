@@ -21,7 +21,7 @@ export type InputProps = ComponentPropsWithoutRef<typeof AntInput> & InputStyleP
 type InputRef = ElementRef<typeof AntInput>;
 
 const BaseInput = forwardRef<InputRef, InputProps>(({ appearance = 'solid', fullWidth = true, width, ...rest }, ref) => (
-<InputRoot ref={ref} appearance={appearance} fullWidth={fullWidth} width={width} {...rest} />
+  <InputRoot ref={ref} $appearance={appearance} $fullWidth={fullWidth} $width={width} {...rest} />
 ));
 
 BaseInput.displayName = 'Input';
@@ -31,7 +31,7 @@ type PasswordInputRef = ElementRef<typeof AntInput.Password>;
 
 const BasePasswordInput = forwardRef<PasswordInputRef, PasswordInputProps>(
   ({ appearance = 'solid', fullWidth = true, width, ...rest }, ref) => (
-    <PasswordInput ref={ref} appearance={appearance} fullWidth={fullWidth} width={width} {...rest} />
+    <PasswordInput ref={ref} $appearance={appearance} $fullWidth={fullWidth} $width={width} {...rest} />
   )
 );
 
@@ -42,7 +42,7 @@ type SearchInputRef = ElementRef<typeof AntInput.Search>;
 
 const BaseSearchInput = forwardRef<SearchInputRef, SearchInputProps>(
   ({ appearance = 'solid', fullWidth = true, width, ...rest }, ref) => (
-    <SearchInput ref={ref} appearance={appearance} fullWidth={fullWidth} width={width} {...rest} />
+    <SearchInput ref={ref} $appearance={appearance} $fullWidth={fullWidth} $width={width} {...rest} />
   )
 );
 
@@ -53,7 +53,7 @@ type TextAreaInputRef = ElementRef<typeof AntInput.TextArea>;
 
 const BaseTextAreaInput = forwardRef<TextAreaInputRef, TextAreaInputProps>(
   ({ appearance = 'solid', fullWidth = true, width, ...rest }, ref) => (
-    <TextAreaInput ref={ref} appearance={appearance} fullWidth={fullWidth} width={width} {...rest} />
+    <TextAreaInput ref={ref} $appearance={appearance} $fullWidth={fullWidth} $width={width} {...rest} />
   )
 );
 

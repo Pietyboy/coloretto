@@ -9,7 +9,8 @@ import { addActiveGame } from '../../shared/lib/active-games';
 import { useCreateNewPlayerMutation, useJoinGameMutation } from '../../store/api/game-api';
 import { useAppSelector } from '../../store/hooks';
 
-import { TGame } from './type';
+import { getErrorMessage, getGameDate, hasTextError } from './helpers';
+import type { CreatePlayerFormValues, TGame } from './types';
 
 const { Button, Card, Flex, Form, Input, Typography } = Components;
 const { Text } = Typography;
@@ -19,29 +20,19 @@ type TGameRoomCard = {
   onDelete?: (gameId: number) => void;
 };
 
-type CreatePlayerFormValues = {
-  nickname: string;
-};
-
-const getErrorMessage = (error: unknown, fallback: string) => {
-  const apiError = error as { data?: { error?: string; message?: string }; error?: string; message?: string };
-  return apiError.data?.error || apiError.data?.message || apiError.error || apiError.message || fallback;
-};
-
-const hasTextError = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0;
-
 export const GameRoomCard = ({ game, onDelete }: TGameRoomCard) => {
   const navigate = useNavigate();
   const notify = useNotify();
   const username = useAppSelector(state => state.profile.username);
 
-  const [joinGame, { isLoading: isJoining }] = useJoinGameMutation();
-  const [createNewPlayer, { isLoading: isCreatingPlayer }] = useCreateNewPlayerMutation();
-  const isConnecting = isJoining || isCreatingPlayer;
-
   const [createPlayerModalOpen, setCreatePlayerModalOpen] = useState(false);
   const [createPlayerError, setCreatePlayerError] = useState<null | string>(null);
   const [createPlayerForm] = Form.useForm<CreatePlayerFormValues>();
+
+  const [joinGame, { isLoading: isJoining }] = useJoinGameMutation();
+  const [createNewPlayer, { isLoading: isCreatingPlayer }] = useCreateNewPlayerMutation();
+
+  const isConnecting = isJoining || isCreatingPlayer;
 
   const connectToGame = () => {
     addActiveGame({ gameId: game.gameId, gameName: game.gameName || `Игра ${game.gameId}` });
@@ -86,8 +77,6 @@ export const GameRoomCard = ({ game, onDelete }: TGameRoomCard) => {
   const handleDelete = () => {
     onDelete?.(game.gameId);
   };
-
-  const getGameDate = (date: string) => new Date(date).getDate();
 
   const handleCancelCreatePlayer = () => {
     setCreatePlayerModalOpen(false);

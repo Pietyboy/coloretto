@@ -1,8 +1,6 @@
 import { Components } from '../../shared';
 import { GameCard } from '../game-card';
 
-const {Card} = Components;
-
 import {
   BaseSlot,
   CARD_HEIGHT,
@@ -11,7 +9,9 @@ import {
   StackCard,
   StackSlot,
 } from './card-table.styled';
-import { getOffsetMap } from './helper';
+import { getOffsetMap } from './helpers';
+
+const { Card } = Components;
 
 export type CardTableProps = {
   animation?: 'default' | 'none' | 'parallax' | 'tilt';
@@ -21,7 +21,7 @@ export type CardTableProps = {
   topCard: string;
 };
 
-export const CardTable = ({ animation = 'none',count, offset, onClick, topCard }: CardTableProps) => {
+export const CardTable = ({ animation = 'none', count, offset, onClick, topCard }: CardTableProps) => {
   const offsets = getOffsetMap(offset, count);
   const maxOffset = offsets.length ? Math.max(...offsets) : 0;
   const containerWidth = CARD_WIDTH + maxOffset;
@@ -41,22 +41,20 @@ export const CardTable = ({ animation = 'none',count, offset, onClick, topCard }
 
   return (
     <StackSlot $height={containerHeight} $width={containerWidth}>
-      {offsets.map((offset, idx) => {
-        return (
-          <StackCard
-            key={`card-in-row-${idx}`}
-            $height={CARD_HEIGHT}
-            $offset={offset}
-            $width={CARD_WIDTH}
-          >
-            {idx === count-1 ?
-              <GameCard animation={animation} height={CARD_HEIGHT} variant={topCard} width={CARD_WIDTH} />
-              :
-              <Card animation="none" height={CARD_HEIGHT} width={CARD_WIDTH} onClick={onClick}/>
-            }
-          </StackCard>
-        );
-      })}
+      {offsets.map((offsetValue, idx) => (
+        <StackCard
+          key={`card-in-row-${idx}`}
+          $height={CARD_HEIGHT}
+          $offset={offsetValue}
+          $width={CARD_WIDTH}
+        >
+          {idx === count - 1 ? (
+            <GameCard animation={animation} height={CARD_HEIGHT} variant={topCard} width={CARD_WIDTH} />
+          ) : (
+            <Card animation="none" height={CARD_HEIGHT} width={CARD_WIDTH} onClick={onClick} />
+          )}
+        </StackCard>
+      ))}
     </StackSlot>
   );
 };

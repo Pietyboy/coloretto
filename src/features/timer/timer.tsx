@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Flex, Typography } from '../../shared/ui/components';
 
 import { gugiFontStyle } from './constants';
+import { clampDuration, formatTime } from './helpers';
 
 const { Text } = Typography;
 
@@ -10,18 +11,6 @@ export type TimerProps = {
   duration: number;
   onComplete?: () => void;
   paused?: boolean;
-};
-
-const clampDuration = (value: number) => Math.max(0, Math.floor(value));
-
-const formatTime = (seconds: number) => {
-  const mins = Math.floor(seconds / 60)
-    .toString()
-    .padStart(1, '0');
-  const secs = Math.floor(seconds % 60)
-    .toString()
-    .padStart(2, '0');
-  return `${mins}:${secs}`;
 };
 
 export const Timer = ({ duration, onComplete, paused = false }: TimerProps) => {

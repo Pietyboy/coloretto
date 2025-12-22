@@ -1,5 +1,5 @@
-import type { ComponentType, MouseEvent } from 'react';
-import { forwardRef, useCallback } from 'react';
+import type { ComponentProps, ComponentType, MouseEvent } from 'react';
+import { useCallback } from 'react';
 
 import type { MotionStyle } from 'motion/react';
 import { motion, useSpring } from 'motion/react';
@@ -14,9 +14,9 @@ type AnyProps = {
 };
 
 export const withMotionPreset = <P extends object>(BaseComponent: ComponentType<P>) => {
-  const MotionComponent = motion(BaseComponent);
+  const MotionComponent = motion.create(BaseComponent);
 
-  const WithPreset = forwardRef<any, P & MotionPresetProps>((props, ref) => {
+  const WithPreset = (props: P & MotionPresetProps) => {
     const {
       animation = 'default',
       animationHoverShadow,
@@ -58,7 +58,7 @@ export const withMotionPreset = <P extends object>(BaseComponent: ComponentType<
       rotateY.set(0);
     }, [parallaxEnabled, rotateX, rotateY]);
 
-    const { onMouseLeave, onMouseMove, style: incomingStyle, ...componentProps } = rest as P & AnyProps;
+    const { onMouseLeave, onMouseMove, style: incomingStyle, ...componentProps } = rest as unknown as P & AnyProps;
 
     const motionStyle: MotionStyle | undefined = parallaxEnabled
       ? {
@@ -85,18 +85,17 @@ export const withMotionPreset = <P extends object>(BaseComponent: ComponentType<
         }
       : onMouseLeave;
 
-    return (
-      <MotionComponent
-        ref={ref}
-        {...(componentProps as any)}
-        style={mergedStyle}
-        transition={preset.transition}
-        whileHover={preset.whileHover}
-        onMouseMove={composedMouseMove}
-        onMouseLeave={composedMouseLeave}
-      />
-    );
-  });
+    const motionComponentProps = {
+      ...(componentProps as unknown as ComponentProps<typeof MotionComponent>),
+      onMouseLeave: composedMouseLeave,
+      onMouseMove: composedMouseMove,
+      style: mergedStyle,
+      transition: preset.transition,
+      whileHover: preset.whileHover,
+    } as ComponentProps<typeof MotionComponent>;
+
+    return <MotionComponent {...motionComponentProps} />;
+  };
 
   WithPreset.displayName = `withMotionPreset(${BaseComponent.displayName ?? BaseComponent.name ?? 'Component'})`;
 

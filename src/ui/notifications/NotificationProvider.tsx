@@ -1,11 +1,8 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { generateNotificationId } from './helpers';
 import { NotificationContainer } from './NotificationContainer';
-import type { Notification, NotificationType } from './types';
-
-type NotificationContextValue = {
-  notify: (type: NotificationType, message: string) => void;
-};
+import type { Notification, NotificationContextValue, NotificationType } from './types';
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
 
@@ -15,15 +12,6 @@ export const notify = (type: NotificationType, message: string) => {
   globalNotify?.(type, message);
 };
 
-const generateId = () => {
-  const cryptoWithUuid = globalThis.crypto as (Crypto & { randomUUID?: () => string }) | undefined;
-  if (cryptoWithUuid?.randomUUID) {
-    return cryptoWithUuid.randomUUID();
-  }
-
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-};
-
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<Notification[]>([]);
 
@@ -31,7 +19,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     setItems(prev => [
       ...prev,
       {
-        id: generateId(),
+        id: generateNotificationId(),
         message,
         type,
       },
