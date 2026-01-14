@@ -16,6 +16,66 @@ export type Elevation = {
   shadow: string;
 };
 
+export type ComponentStateTokens = {
+  background?: string;
+  borderColor?: string;
+  boxShadow?: string;
+  color?: string;
+  opacity?: number;
+  transform?: string;
+};
+
+export type ButtonVariantTokens = ComponentStateTokens & {
+  active?: ComponentStateTokens;
+  hover?: ComponentStateTokens;
+};
+
+export type ButtonSizeTokens = {
+  font: string;
+  height: string;
+  paddingX: string;
+};
+
+export type CardVariantTokens = {
+  backdropFilter?: string;
+  background: string;
+  borderColor?: string;
+};
+
+export type InputAppearanceTokens = {
+  background: string;
+  borderColor: string;
+  color: string;
+};
+
+export type InputTokens = {
+  appearances: Record<string, InputAppearanceTokens>;
+  errorBackground?: string;
+  focusShadowColor: string;
+};
+
+export type SelectTokens = {
+  arrowColor: string;
+  control: {
+    background: string;
+    borderColor: string;
+    color: string;
+  };
+  dropdown: {
+    background: string;
+    borderColor: string;
+    color: string;
+  };
+  option: {
+    activeBackground: string;
+    color: string;
+    selectedBackground: string;
+  };
+  placeholderColor: string;
+};
+
+export type TypographyToneTokens = Record<string, string>;
+
 export type CardColorName =
   | 'blue'
   | 'brown'
@@ -47,6 +107,18 @@ export interface ColorettoTheme {
       background?: string;
       borderRadius?: string;
       colorText?: string;
+    };
+    button?: {
+      sizes?: Record<string, ButtonSizeTokens>;
+      variants?: Record<string, ButtonVariantTokens>;
+    };
+    card?: {
+      variants?: Record<string, CardVariantTokens>;
+    };
+    input?: InputTokens;
+    select?: SelectTokens;
+    typography?: {
+      tones?: TypographyToneTokens;
     };
   };
   elevation: Elevation[];

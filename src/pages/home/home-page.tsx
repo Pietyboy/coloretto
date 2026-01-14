@@ -53,6 +53,8 @@ export const HomePage = () => {
       });
   }, [gamesData, hasSeats, maxPlayers, search, sortBy, status]);
 
+  const emptyText = gamesData.length === 0 ? 'Нет доступных игр' : 'Игры не найдены';
+
   const resetFilters = () => {
     setStatus('all');
     setHasSeats(false);
@@ -81,6 +83,7 @@ export const HomePage = () => {
           onToggleSeats={() => setHasSeats(prev => !prev)}
         />
         <GameCardsGrid
+          emptyText={emptyText}
           isLoading={isLoading}
           items={filteredGames}
           renderItem={(game) => <GameRoomCard key={game.gameId} game={game} />}

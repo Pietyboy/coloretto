@@ -1,3 +1,5 @@
+import { MONTHS_SHORT } from './constants';
+
 type ApiError = {
   data?: {
     error?: string;
@@ -15,4 +17,16 @@ export const getErrorMessage = (error: unknown, fallback: string) => {
 export const hasTextError = (value: unknown): value is string =>
   typeof value === 'string' && value.trim().length > 0;
 
-export const getGameDate = (date: string) => new Date(date).getDate();
+export const getGameDate = (date: string) => {
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return '—';
+  }
+
+  const day = parsedDate.getDate();
+  const month = MONTHS_SHORT[parsedDate.getMonth()];
+  const year = parsedDate.getFullYear();
+  const currentYear = new Date().getFullYear();
+
+  return year === currentYear ? `${day} ${month}` : `${day} ${month} ${year}`;
+};

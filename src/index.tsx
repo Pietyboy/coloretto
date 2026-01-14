@@ -3,7 +3,7 @@ import { StrictMode } from 'react';
 import { theme as antdTheme, ConfigProvider } from 'antd';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router';
+import { HashRouter } from 'react-router';
 import { ThemeProvider } from 'styled-components';
 
 import 'antd/dist/reset.css';
@@ -38,9 +38,9 @@ root.render(
       <Provider store={store}>
       <ThemeProvider theme={baseTheme}>
           <GlobalStyle/>
-          <BrowserRouter>
+          <HashRouter>
             <App/>
-          </BrowserRouter>
+          </HashRouter>
       </ThemeProvider>
     </Provider>
     </ConfigProvider>

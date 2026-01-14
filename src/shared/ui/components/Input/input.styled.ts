@@ -1,5 +1,6 @@
 import { Input as AntInput } from 'antd';
 import styled, { css } from 'styled-components';
+import type { DefaultTheme } from 'styled-components';
 
 export type InputAppearance = 'ghost' | 'ghostDark' | 'solid';
 
@@ -9,20 +10,33 @@ export type StyledInputProps = {
   $width?: number | string;
 };
 
+const resolveAppearanceTokens = (theme: DefaultTheme, appearance: InputAppearance) =>
+  theme.components?.input?.appearances?.[appearance];
+
 const appearanceStyles: Record<InputAppearance, ReturnType<typeof css>> = {
   ghost: css`
-    background: transparent;
-    border-color: ${({ theme }) => theme.colors.surfaceMuted};
-    color: ${({ theme }) => theme.colors.textPrimary};
+    background: ${({ theme }) =>
+      resolveAppearanceTokens(theme, 'ghost')?.background ?? 'transparent'};
+    border-color: ${({ theme }) =>
+      resolveAppearanceTokens(theme, 'ghost')?.borderColor ?? theme.colors.surfaceMuted};
+    color: ${({ theme }) =>
+      resolveAppearanceTokens(theme, 'ghost')?.color ?? theme.colors.textPrimary};
   `,
   ghostDark: css`
-    background: transparent;
-    border-color: ${({ theme }) => theme.colors.surfaceMuted};
-    color: ${({ theme }) => theme.colors.textSecondary};
+    background: ${({ theme }) =>
+      resolveAppearanceTokens(theme, 'ghostDark')?.background ?? 'transparent'};
+    border-color: ${({ theme }) =>
+      resolveAppearanceTokens(theme, 'ghostDark')?.borderColor ?? theme.colors.surfaceMuted};
+    color: ${({ theme }) =>
+      resolveAppearanceTokens(theme, 'ghostDark')?.color ?? theme.colors.textSecondary};
   `,
   solid: css`
-    background: ${({ theme }) => theme.colors.background};
-    color: ${({ theme }) => theme.colors.textPrimary};
+    background: ${({ theme }) =>
+      resolveAppearanceTokens(theme, 'solid')?.background ?? theme.colors.background};
+    border-color: ${({ theme }) =>
+      resolveAppearanceTokens(theme, 'solid')?.borderColor ?? theme.colors.surfaceMuted};
+    color: ${({ theme }) =>
+      resolveAppearanceTokens(theme, 'solid')?.color ?? theme.colors.textPrimary};
   `,
 };
 
@@ -43,12 +57,12 @@ const baseInputStyles = css<StyledInputProps>`
 
     &.ant-input-status-error,
     &.ant-input-affix-wrapper-status-error {
-      background: transparent;
+      background: ${({ theme }) => theme.components?.input?.errorBackground ?? 'transparent'};
     }
 
     &.ant-input-status-error input,
     &.ant-input-affix-wrapper-status-error input {
-      background: transparent;
+      background: ${({ theme }) => theme.components?.input?.errorBackground ?? 'transparent'};
     }
 
     &:hover,
@@ -56,8 +70,9 @@ const baseInputStyles = css<StyledInputProps>`
     &.ant-input-affix-wrapper-focused,
     &.ant-input-focused {
       background: ${({ $appearance = 'ghost', theme }) =>
-        $appearance === 'solid' ? theme.colors.background : 'transparent'};
-      box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.accent};
+        resolveAppearanceTokens(theme, $appearance)?.background ??
+        ($appearance === 'solid' ? theme.colors.background : 'transparent')};
+      box-shadow: 0 0 0 2px ${({ theme }) => theme.components?.input?.focusShadowColor ?? theme.colors.accent};
     }
   }
 `;

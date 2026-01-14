@@ -10,6 +10,7 @@ import redCard from '../../../../assets/cards/red-card.svg';
 import yellowCard from '../../../../assets/cards/yellow-card.svg';
 import bookIcon from '../../../../assets/icons/book.svg';
 import closeIcon from '../../../../assets/icons/close.svg';
+import closeBlackIcon from '../../../../assets/icons/closeBlack.svg';
 import lockIcon from '../../../../assets/icons/lock.svg';
 import profileIcon from '../../../../assets/icons/profile.svg';
 import blueIndicator from '../../../../assets/indicators/blue.svg';
@@ -29,6 +30,7 @@ export const imageSources = {
   bookIcon,
   brownCard,
   brownIndicator,
+  closeBlackIcon,
   closeIcon,
   greenCard,
   greenIndicator,

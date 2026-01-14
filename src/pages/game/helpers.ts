@@ -5,10 +5,29 @@ import { TGameState, TPlayerHand, TPlayerInfo, TCard as TStoreCard } from '../..
 
 import type { TGameStatus } from './types';
 
-const mapPlayer = (player: TPlayer): TPlayerInfo => ({
+export const getUiGameStatus = (state: unknown): TGameStatus => {
+  if (!state || typeof state !== 'object') return 'unknown';
+
+  const stateRecord = state as Record<string, unknown>;
+  const candidate = stateRecord.gameStatus ?? stateRecord.status ?? stateRecord.game_status;
+
+  if (typeof candidate === 'string') {
+    const normalized = candidate.toLowerCase();
+    if (normalized.includes('wait')) return 'waiting';
+    if (normalized.includes('pause')) return 'paused';
+    if (normalized.includes('finish')) return 'finished';
+    if (normalized.includes('progress') || normalized.includes('in_progress') || normalized.includes('inprogress')) return 'active';
+  }
+
+  if (stateRecord.isGameFinished === true) return 'finished';
+
+  return 'unknown';
+};
+
+const mapPlayer = (player: TPlayer, allowJokerColors: boolean): TPlayerInfo => ({
   isCurrentTurn: player.isCurrentTurn,
   isTurnAvailable: player.isCurrentTurn,
-  playerHand: groupCardsByColorAndType(player.hand),
+  playerHand: groupCardsByColorAndType(player.hand, { allowJokerColors }),
   playerId: player.playerId,
   playerName: player.nickname,
 });
@@ -21,6 +40,7 @@ const mapRowCards = (cards: null | TApiCard[]): TStoreCard[] =>
   }));
 
 export const MapGameData = (data: TGameStateApi, playerId?: number, playerNickname?: string): TGameState => {
+  const allowJokerColors = getUiGameStatus(data) === 'finished';
   const players = data.players ?? [];
   const currentPlayer =
     (playerId !== undefined && playerId !== null
@@ -29,6 +49,7 @@ export const MapGameData = (data: TGameStateApi, playerId?: number, playerNickna
     || (playerNickname
       ? players.find(player => player.nickname === playerNickname)
       : undefined);
+  const mapPlayerWithColors = (player: TPlayer) => mapPlayer(player, allowJokerColors);
 
   return {
     cardsCount: data.remainingCardsCount,
@@ -36,9 +57,9 @@ export const MapGameData = (data: TGameStateApi, playerId?: number, playerNickna
     gameId: data.gameId,
     otherPlayersInfo: (currentPlayer
       ? players.filter(player => player.playerId !== currentPlayer.playerId)
-      : players).map(mapPlayer),
+      : players).map(mapPlayerWithColors),
     playerCount: data.maxPlayerCount,
-    playerInfo: currentPlayer ? mapPlayer(currentPlayer) : undefined,
+    playerInfo: currentPlayer ? mapPlayerWithColors(currentPlayer) : undefined,
     rows: data.rows?.map(row => ({
       cards: mapRowCards(row.cards),
       cardsCount: row.cards?.length ?? 0,
@@ -50,17 +71,27 @@ export const MapGameData = (data: TGameStateApi, playerId?: number, playerNickna
   };
 };
 
-export const groupCardsByColorAndType = (cards: null | TApiCard[] ): null | TPlayerHand[] => {
+type GroupCardsOptions = {
+  allowJokerColors?: boolean;
+};
+
+export const groupCardsByColorAndType = (
+  cards: null | TApiCard[],
+  options: GroupCardsOptions = {},
+): null | TPlayerHand[] => {
   const map = new Map<string, TPlayerHand>();
+  const allowJokerColors = options.allowJokerColors === true;
 
   if (cards === null) {
     return null;
   }
 
   cards.forEach(card => {
-    const cardColor = card.color.toLowerCase();
-    const rawType = card.type.toLowerCase();
-    const cardType = rawType === 'joker' && cardColor !== 'none' ? 'common' : rawType;
+    const rawColor = typeof card.color === 'string' ? card.color.toLowerCase() : 'none';
+    const rawType = typeof card.type === 'string' ? card.type.toLowerCase() : 'common';
+    const isJoker = rawType === 'joker';
+    const cardColor = isJoker && !allowJokerColors ? 'none' : rawColor;
+    const cardType = isJoker && allowJokerColors && cardColor !== 'none' ? 'common' : rawType;
     const key = `${cardColor}__${cardType}`;
 
     const existing = map.get(key);
@@ -97,22 +128,3 @@ export const mapHandToUiCards = (hand: null | TPlayerHand[]): TPlayerCard[] =>
     count: handItem.cardsCount,
     type: normalizeType(handItem.card.cardType),
   }));
-
-export const getUiGameStatus = (state: unknown): TGameStatus => {
-  if (!state || typeof state !== 'object') return 'unknown';
-
-  const stateRecord = state as Record<string, unknown>;
-  const candidate = stateRecord.gameStatus ?? stateRecord.status ?? stateRecord.game_status;
-
-  if (typeof candidate === 'string') {
-    const normalized = candidate.toLowerCase();
-    if (normalized.includes('wait')) return 'waiting';
-    if (normalized.includes('pause')) return 'paused';
-    if (normalized.includes('finish')) return 'finished';
-    if (normalized.includes('progress') || normalized.includes('in_progress') || normalized.includes('inprogress')) return 'in-progress';
-  }
-
-  if (stateRecord.isGameFinished === true) return 'finished';
-
-  return 'unknown';
-};

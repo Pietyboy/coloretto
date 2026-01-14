@@ -13,6 +13,9 @@ export type TGameApi = {
     currentPlayersCount: number,
     isFinished: boolean,
     currentTurnPlayer: string,
+    gameStatus?: string,
+    game_status?: string,
+    status?: string,
     players: TPlayerApi[]
 }
 

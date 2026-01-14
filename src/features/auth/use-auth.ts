@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 
+import { clearStoredAuth, getStoredAuth, setStoredAuth } from '../../shared/lib/auth-storage';
 import { useRefreshSessionMutation } from '../../store/api/auth-api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setAuthChecked, setAuthToken, setUsername } from '../../store/slices/profile-slice';
@@ -17,18 +18,30 @@ export const useAuthInit = () => {
     if (initialized.current || authChecked) return;
     initialized.current = true;
 
+    const storedAuth = getStoredAuth();
+    if (storedAuth?.token) {
+      dispatch(setAuthToken(storedAuth.token));
+      if (storedAuth.username) {
+        dispatch(setUsername(storedAuth.username));
+      }
+      dispatch(setAuthChecked(true));
+      return;
+    }
+
     const run = async () => {
       try {
         const data = await refreshSession().unwrap();
         const token = extractAccessToken(data);
         if (token) {
           dispatch(setAuthToken(token));
+          setStoredAuth(token, data?.username);
         }
         if (data?.username) {
           dispatch(setUsername(data.username));
         }
       } catch (err) {
         dispatch(setAuthToken(null));
+        clearStoredAuth();
       } finally {
         dispatch(setAuthChecked(true));
       }

@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { Modal } from 'antd';
-
 import { CardRow } from '../../features/card-row';
 import { Deck } from '../../features/deck';
 import { Components } from '../../shared';
+import { notify } from '../../shared/ui/notifications/NotificationProvider';
 import {
   useChooseColorsMutation,
   useChooseJokerColorsMutation,
@@ -13,13 +12,15 @@ import {
 } from '../../store/api/game-api';
 import type { TCard } from '../../store/api/types';
 import type { TRow } from '../../store/types';
-import { notify } from '../../ui/notifications/NotificationProvider';
 
 import { JokerColorOptions } from './constants';
 import { mapRowCardsToVariants } from './helpers';
+import { JokerColorsModal } from './joker-colors-modal';
+import { ScoreColorsModal } from './score-colors-modal';
+import { TakeRowModal } from './take-row-modal';
 import type { TDraggingCard } from './types';
 
-const { Flex, Image, Select, Typography } = Components;
+const { Flex } = Components;
 
 type GameCardSectionProps = {
   cardsCount: number;
@@ -52,6 +53,7 @@ export const GameCardSection = ({
   const [draggingCard, setDraggingCard] = useState<null | TDraggingCard>(null);
   const [jokerColorsByCardId, setJokerColorsByCardId] = useState<Record<number, number>>({});
   const [jokerColorsError, setJokerColorsError] = useState<null | string>(null);
+  const [isTopCardRevealed, setTopCardRevealed] = useState(false);
   const [rowToTake, setRowToTake] = useState<null | number>(null);
   const [scoreColorIds, setScoreColorIds] = useState<Array<null | number>>([null, null, null]);
   const [scoreColorsError, setScoreColorsError] = useState<null | string>(null);
@@ -69,6 +71,7 @@ export const GameCardSection = ({
     if (!isPaused) return;
     setActiveRowId(null);
     setDraggingCard(null);
+    setTopCardRevealed(false);
     setRowToTake(null);
     setJokerColorsError(null);
     setScoreColorsError(null);
@@ -125,6 +128,10 @@ export const GameCardSection = ({
 
   const handleRowClick = (rowId: number) => {
     if (draggingCard || !isMyTurn) return;
+    if (isTopCardRevealed) {
+      notify('warning', 'Сначала положите открытую карту');
+      return;
+    }
     const row = rows.find(r => r.rowId === rowId);
     if (!row || row.cards.length === 0) return;
     setRowToTake(rowId);
@@ -226,12 +233,12 @@ export const GameCardSection = ({
 
   return (
     <>
-      <Flex direction="row" height={269} justify="space-between">
+      <Flex direction="row" fullWidth height={269} justify="space-between">
         {rows.filter(row => row.isActive).map(row => (
           <CardRow
             key={row.rowId}
             cards={mapRowCardsToVariants(row.cards)}
-            disableClick={draggingCard !== null || !isMyTurn}
+            disableClick={draggingCard !== null || !isMyTurn || isTopCardRevealed}
             isActive={row.isActive}
             isActiveDrop={draggingCard !== null && activeRowId === row.rowId && row.cardsCount < 3 && isMyTurn}
             isDroppable={draggingCard !== null && row.cardsCount < 3 && isMyTurn}
@@ -250,113 +257,34 @@ export const GameCardSection = ({
           topCardId={topCard}
           onCardDragEnd={handleDragEndCard}
           onCardDragStart={isMyTurn ? handleDragStartCard : undefined}
+          onRevealChange={setTopCardRevealed}
           onRevealBlocked={() => notify('warning', 'Все ряды заполнены. Сначала возьмите ряд')}
           onRevealError={(message) => notify('error', message)}
         />
       </Flex>
-      <Modal
-        centered
-        cancelText="Нет"
-        confirmLoading={isTakingRow}
-        okText="Да"
-        open={rowToTake !== null}
+      <TakeRowModal
+        isOpen={rowToTake !== null}
+        isSubmitting={isTakingRow}
         onCancel={handleCancelTakeRow}
-        onOk={handleConfirmTakeRow}
-      >
-        <Typography.Text>Вы точно хотите взять этот ряд?</Typography.Text>
-      </Modal>
-      <Modal
-        centered
-        closable={false}
-        confirmLoading={isChoosingJokerColors}
-        maskClosable={false}
-        okText="Подтвердить"
-        open={isJokerModalOpen}
-        onOk={handleSubmitJokerColors}
-      >
-        <Flex direction="column" gap={12}>
-          <Typography.Text size="regular" weight="medium">
-            Выберите цвет для каждого джокера
-          </Typography.Text>
-          <Flex direction="column" gap={8}>
-            {unresolvedJokers.map(joker => {
-              const selectedColorId = jokerColorsByCardId[joker.cardId];
-              const selectedIndicator = JokerColorOptions.find(option => option.colorId === selectedColorId)?.indicator;
-
-              return (
-                <Flex key={joker.cardId} align="center" direction="row" gap={10}>
-                  <Image height={29} variant="jokerIndicator" width={27} />
-                  <Typography.Text size="medium">→</Typography.Text>
-                  {selectedIndicator ? (
-                    <Image height={29} variant={selectedIndicator} width={27} />
-                  ) : (
-                    <Flex height={29} style={{ border: '1px solid #424041', borderRadius: 6 }} width={27} />
-                  )}
-                  <Select
-                    style={{ flex: 1 }}
-                    placeholder="Выберите цвет"
-                    value={selectedColorId ?? undefined}
-                    options={JokerColorOptions.map(option => ({ label: option.label, value: option.colorId }))}
-                    onChange={(value) => handleChangeJokerColor(joker.cardId, Number(value))}
-                  />
-                </Flex>
-              );
-            })}
-          </Flex>
-          {jokerColorsError && (
-            <Typography.Text tone="danger">{jokerColorsError}</Typography.Text>
-          )}
-        </Flex>
-      </Modal>
-      <Modal
-        centered
-        closable={false}
-        confirmLoading={isChoosingColors}
-        maskClosable={false}
-        okText="Подтвердить"
-        open={isColorModalOpen}
-        onOk={handleSubmitScoreColors}
-      >
-        <Flex direction="column" gap={12}>
-          <Typography.Text size="regular" weight="medium">
-            Выберите 3 цвета для подсчёта очков
-          </Typography.Text>
-          <Typography.Text tone="secondary">
-            Эти 3 цвета будут приносить положительные очки, все остальные — отрицательные.
-          </Typography.Text>
-          <Flex direction="column" gap={8}>
-            {[0, 1, 2].map(index => {
-              const selectedColorId = scoreColorIds[index];
-              const selectedIndicator = JokerColorOptions.find(option => option.colorId === selectedColorId)?.indicator;
-              const selectedOther = scoreColorIds.filter((value, idx) => idx !== index && typeof value === 'number') as number[];
-
-              return (
-                <Flex key={index} align="center" direction="row" gap={10}>
-                  {selectedIndicator ? (
-                    <Image height={29} variant={selectedIndicator} width={27} />
-                  ) : (
-                    <Flex height={29} style={{ border: '1px solid #424041', borderRadius: 6 }} width={27} />
-                  )}
-                  <Select
-                    style={{ flex: 1 }}
-                    placeholder={`Цвет ${index + 1}`}
-                    value={selectedColorId ?? undefined}
-                    options={JokerColorOptions.map(option => ({
-                      disabled: selectedOther.includes(option.colorId),
-                      label: option.label,
-                      value: option.colorId,
-                    }))}
-                    onChange={(value) => handleChangeScoreColor(index, Number(value))}
-                  />
-                </Flex>
-              );
-            })}
-          </Flex>
-          {scoreColorsError && (
-            <Typography.Text tone="danger">{scoreColorsError}</Typography.Text>
-          )}
-        </Flex>
-      </Modal>
+        onConfirm={handleConfirmTakeRow}
+      />
+      <JokerColorsModal
+        error={jokerColorsError}
+        isOpen={isJokerModalOpen}
+        isSubmitting={isChoosingJokerColors}
+        jokerColorsByCardId={jokerColorsByCardId}
+        unresolvedJokers={unresolvedJokers}
+        onChangeColor={handleChangeJokerColor}
+        onConfirm={handleSubmitJokerColors}
+      />
+      <ScoreColorsModal
+        error={scoreColorsError}
+        isOpen={isColorModalOpen}
+        isSubmitting={isChoosingColors}
+        scoreColorIds={scoreColorIds}
+        onChangeColor={handleChangeScoreColor}
+        onConfirm={handleSubmitScoreColors}
+      />
     </>
   );
 };

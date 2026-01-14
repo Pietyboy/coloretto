@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { notify } from '../../../../ui/notifications/NotificationProvider';
+import { notify } from '../../notifications/NotificationProvider';
 
 export const GlobalErrorListener = () => {
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { Component, type ReactNode } from 'react';
 
-import { notify } from '../../../../ui/notifications/NotificationProvider';
+import { notify } from '../../notifications/NotificationProvider';
 
 type ErrorBoundaryProps = {
   children: ReactNode;

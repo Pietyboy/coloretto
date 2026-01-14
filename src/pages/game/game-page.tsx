@@ -8,8 +8,9 @@ import { Page } from '../../shared/ui/components';
 import { useGetGameStateQuery, useGetPlayerForGameQuery } from '../../store/api/game-api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setGameState } from '../../store/slices/game-slice';
-import { GameCardSection, GameHostControls, GameResultsModal, OtherPlayerSection } from '../../widgets';
+import { GameCardSection, GameResultsModal, OtherPlayerSection } from '../../widgets';
 
+import { GAME_PAGE_GRID_STYLE } from './constants';
 import { getUiGameStatus, MapGameData, mapHandToUiCards } from './helpers';
 
 const { Flex } = Components;
@@ -38,6 +39,7 @@ export const GamePage = () => {
   const isPaused = gameStatus === 'paused';
   const playerHand = mapHandToUiCards(gameState.playerInfo?.playerHand ?? null);
   const turnDuration = gameState.turnDuration ?? 40;
+  const turnStartTime = gameState.currentTurnStartTime || null;
 
   const otherPlayers = gameState.otherPlayersInfo.map(player => ({
     ...player,
@@ -79,7 +81,8 @@ export const GamePage = () => {
     !isPaused &&
     allPlayersHaveColoredJokers &&
     currentPlayerSelectedColors.length !== 3 &&
-    !!currentPlayerId;
+    !!currentPlayerId &&
+    !shouldShowJokerColorsModal;
 
   useEffect(() => {
     setStopPolling(false);
@@ -97,35 +100,43 @@ export const GamePage = () => {
 
   return (
     <Page>
-      <Flex direction="column" gap={50} fullWidth>
-        <OtherPlayerSection isPaused={isPaused} otherPlayers={otherPlayers} turnDuration={turnDuration} />
-        <GameCardSection
-          cardsCount={gameState.cardsCount}
-          currentPlayerId={currentPlayerId ?? -1}
-          gameId={gameId}
-          isColorModalOpen={shouldShowChooseColorsModal}
-          isCurrentTurn={gameState.playerInfo?.isCurrentTurn ?? false}
-          isJokerModalOpen={shouldShowJokerColorsModal}
-          isPaused={isPaused}
-          playerId={gameState.playerInfo?.playerId ?? -1}
-          rows={gameState.rows}
-          topCard={gameState.topCard}
-          unresolvedJokers={unresolvedJokers}
-        />
-        <Flex align="center" direction="row" fullWidth gap={12} wrap>
-          <Flex style={{ flex: 1, minWidth: 0 }}>
-            <PlayerGameBar
-              cards={playerHand}
-              isCurrentTurn={!!gameState.playerInfo?.isCurrentTurn}
-              isPaused={isPaused}
-              turnDuration={turnDuration}
-            />
-          </Flex>
-          <GameHostControls gameId={gameId} gameStatus={gameStatus} />
+      <Flex fullWidth gap={50} style={GAME_PAGE_GRID_STYLE}>
+        <Flex fullHeight fullWidth>
+          <OtherPlayerSection
+            isPaused={isPaused}
+            otherPlayers={otherPlayers}
+            turnDuration={turnDuration}
+            turnStartTime={turnStartTime}
+          />
         </Flex>
-        <GameResultsModal gameId={gameId} open={isResultsReady} />
+        <Flex align="center" fullWidth justify="center">
+          <GameCardSection
+            cardsCount={gameState.cardsCount}
+            currentPlayerId={currentPlayerId ?? -1}
+            gameId={gameId}
+            isColorModalOpen={shouldShowChooseColorsModal}
+            isCurrentTurn={gameState.playerInfo?.isCurrentTurn ?? false}
+            isJokerModalOpen={shouldShowJokerColorsModal}
+            isPaused={isPaused}
+            playerId={gameState.playerInfo?.playerId ?? -1}
+            rows={gameState.rows}
+            topCard={gameState.topCard}
+            unresolvedJokers={unresolvedJokers}
+          />
+        </Flex>
+        <Flex fullHeight fullWidth justify="end">
+          <PlayerGameBar
+            cards={playerHand}
+            gameId={gameId}
+            gameStatus={gameStatus}
+            isCurrentTurn={!!gameState.playerInfo?.isCurrentTurn}
+            isPaused={isPaused}
+            turnDuration={turnDuration}
+            turnStartTime={turnStartTime}
+          />
+        </Flex>
       </Flex>
+      <GameResultsModal gameId={gameId} open={isResultsReady} />
     </Page>
   );
 };
-

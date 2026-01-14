@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 import { Components } from '../../shared';
 
-const { Flex, Spin, Typography } = Components;
+const { Empty, Flex, Spin } = Components;
 
 type GameCardsGridProps<T> = {
   emptyText?: string;
@@ -27,11 +27,11 @@ export const GameCardsGrid = <T,>({
         </Flex>
       ) : hasItems ? (
         items.map((item, index) => renderItem(item, index))
-      ) : emptyText ? (
+      ) : (
         <Flex align="center" fullHeight fullWidth justify="center">
-          <Typography.Text tone="secondary">{emptyText}</Typography.Text>
+          <Empty message={emptyText ?? 'Ничего не найдено'} />
         </Flex>
-      ) : null}
+      )}
     </Flex>
   );
 };

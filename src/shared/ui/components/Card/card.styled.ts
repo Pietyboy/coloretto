@@ -4,6 +4,7 @@ import { CARD_PADDING_STYLES, CARD_VARIANT_STYLES } from './constants';
 import type { CardElevation, CardPadding, CardVariant } from './types';
 
 export type CardStyleProps = {
+  backgroundColor?: string;
   elevation?: CardElevation;
   fullHeight?: boolean;
   fullWidth?: boolean;
@@ -15,6 +16,7 @@ export type CardStyleProps = {
 };
 
 type CardRootProps = {
+  $backgroundColor?: string;
   $elevation?: CardElevation;
   $fullHeight?: boolean;
   $fullWidth?: boolean;
@@ -40,4 +42,5 @@ export const CardRoot = styled.div<CardRootProps>`
 
   ${({ $variant = 'solid' }) => CARD_VARIANT_STYLES[$variant]}
   ${({ $padding = 'md' }) => CARD_PADDING_STYLES[$padding]}
+  ${({ $backgroundColor }) => ($backgroundColor ? `background: ${$backgroundColor};` : '')}
 `;

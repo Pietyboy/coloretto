@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 
 import { useNotify } from '../../hooks/useNotify';
 import { Components } from '../../shared';
+import { setStoredAuth } from '../../shared/lib/auth-storage';
 import { useLoginMutation, useRegisterMutation } from '../../store/api/auth-api';
 import { useAppDispatch } from '../../store/hooks';
 import { setAuthToken, setUsername } from '../../store/slices/profile-slice';
@@ -49,6 +50,7 @@ export const LoginPage = () => {
 
       dispatch(setAuthToken(accessToken));
       dispatch(setUsername(data?.username ?? values.username));
+      setStoredAuth(accessToken, data?.username ?? values.username);
       navigate('/', { replace: true });
     } catch (e) {
       console.log(e);

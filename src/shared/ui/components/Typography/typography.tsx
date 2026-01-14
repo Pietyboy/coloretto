@@ -25,6 +25,11 @@ const textSizeMap: Record<TextSize, CSSProperties> = {
 };
 
 const resolveToneColor = (theme: ColorettoTheme, tone: TextTone) => {
+  const tokenColor = theme.components?.typography?.tones?.[tone];
+  if (tokenColor) {
+    return tokenColor;
+  }
+
   switch (tone) {
     case 'accent':
       return theme.colors.accent;

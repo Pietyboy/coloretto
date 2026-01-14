@@ -1,10 +1,13 @@
 import type { MotionProps, MotionStyle } from 'motion/react';
 
-export type MotionPresetName = 'default' | 'none' | 'parallax' | 'tilt';
+export type MotionPresetName = 'default' | 'fade-in' | 'fade-out' | 'none' | 'parallax' | 'tilt';
 
 export type MotionPresetLevel = 'medium' | 'soft' | 'strong';
 
 export type MotionPresetConfig = {
+  animate?: MotionProps['animate'];
+  exit?: MotionProps['exit'];
+  initial?: MotionProps['initial'];
   style?: MotionStyle;
   transition?: MotionProps['transition'];
   whileHover?: MotionProps['whileHover'];

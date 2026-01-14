@@ -1,5 +1,5 @@
-import { useNotificationContext } from '../ui/notifications/NotificationProvider';
-import type { NotificationType } from '../ui/notifications/types';
+import { useNotificationContext } from '../shared/ui/notifications/NotificationProvider';
+import type { NotificationType } from '../shared/ui/notifications/types';
 
 export const useNotify = () => {
   const { notify } = useNotificationContext();
@@ -7,4 +7,3 @@ export const useNotify = () => {
     notify(type, message);
   };
 };
-

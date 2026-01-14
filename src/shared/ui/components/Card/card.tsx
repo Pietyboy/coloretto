@@ -22,6 +22,7 @@ export const Card = ({
   animation = 'default',
   animationLevel = 'medium',
   animationRotation = 6,
+  backgroundColor,
   children,
   elevation = 1,
   fullHeight,
@@ -40,6 +41,7 @@ export const Card = ({
   return (
     <AnimatedCardRoot
       {...rest}
+      $backgroundColor={backgroundColor}
       $elevation={elevation}
       $fullHeight={fullHeight}
       $fullWidth={fullWidth}

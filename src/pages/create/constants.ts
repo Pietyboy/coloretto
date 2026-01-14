@@ -15,7 +15,7 @@ export const turnTimeSelectOptions = turnTimeOptions.map(value => ({
 export const statusOptions: Array<{ label: string; value: StatusFilter }> = [
   { label: 'Все', value: 'all' },
   { label: 'Ожидают игроков', value: 'waiting' },
-  { label: 'В процессе', value: 'in-progress' },
+  { label: 'В процессе', value: 'active' },
   { label: 'Завершённые', value: 'finished' },
 ];
 

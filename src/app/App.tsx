@@ -7,11 +7,12 @@ import { useAuthInit, useAuthState } from '../features/auth/use-auth';
 import { CreateGamePage, GamePage, HomePage } from '../pages';
 import { LoginPage } from '../pages/login';
 import { ACTIVE_GAMES_EVENT, clearActiveGames, getActiveGames } from '../shared/lib/active-games';
+import { clearStoredAuth } from '../shared/lib/auth-storage';
 import { defaultHeaderTabs, ErrorBoundary, GlobalErrorListener, Header } from '../shared/ui/components';
+import { NotificationProvider } from '../shared/ui/notifications/NotificationProvider';
 import { useLogoutMutation } from '../store/api/auth-api';
 import { useAppDispatch } from '../store/hooks';
 import { logout as logoutAction } from '../store/slices/profile-slice';
-import { NotificationProvider } from '../ui/notifications/NotificationProvider';
 
 const headerTabs = defaultHeaderTabs;
 
@@ -47,6 +48,7 @@ export const App = () => {
       console.log(e);
     } finally {
       clearActiveGames();
+      clearStoredAuth();
       dispatch(logoutAction());
       navigate('/login');
     }

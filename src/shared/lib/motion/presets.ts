@@ -11,6 +11,8 @@ const springTransition = { damping: 18, stiffness: 220, type: 'spring' } as cons
 const tiltTransition = { damping: 20, stiffness: 260, type: 'spring' } as const;
 const parallaxTransition = { damping: 18, stiffness: 200, type: 'spring' } as const;
 
+const fadeTransition = { duration: 0.18, ease: 'easeOut', type: 'tween' } as const;
+
 const getMultiplier = (level: MotionPresetLevel) => LEVEL_MULTIPLIER[level];
 
 const buildDefaultPreset = (options: MotionPresetOptions): MotionPresetConfig => {
@@ -24,6 +26,35 @@ const buildDefaultPreset = (options: MotionPresetOptions): MotionPresetConfig =>
     transition: springTransition,
     whileHover: {
       boxShadow: options.hoverShadow,
+      y: -step,
+    },
+  };
+};
+
+const buildFadeInPreset = (options: MotionPresetOptions): MotionPresetConfig => {
+  const step = 4 * getMultiplier(options.level);
+
+  return {
+    animate: { opacity: 1 },
+    initial: { opacity: 0 },
+    transition: fadeTransition,
+    whileHover: {
+      boxShadow: options.hoverShadow,
+      transition: springTransition,
+      y: -step,
+    },
+  };
+};
+
+const buildFadeOutPreset = (options: MotionPresetOptions): MotionPresetConfig => {
+  const step = 4 * getMultiplier(options.level);
+
+  return {
+    exit: { opacity: 0 },
+    transition: fadeTransition,
+    whileHover: {
+      boxShadow: options.hoverShadow,
+      transition: springTransition,
       y: -step,
     },
   };
@@ -64,6 +95,8 @@ const buildParallaxPreset = (options: MotionPresetOptions): MotionPresetConfig =
 
 const PRESET_BUILDERS: Record<MotionPresetName, (options: MotionPresetOptions) => MotionPresetConfig> = {
   default: buildDefaultPreset,
+  'fade-in': buildFadeInPreset,
+  'fade-out': buildFadeOutPreset,
   none: buildDefaultPreset,
   parallax: buildParallaxPreset,
   tilt: buildTiltPreset,

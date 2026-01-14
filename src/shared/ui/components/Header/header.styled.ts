@@ -82,7 +82,7 @@ export const GameMenu = styled(ProfileMenu)`
     background: transparent;
     border: none;
     padding: ${({ theme }) => theme.spacing(2)} ${({ theme }) => theme.spacing(3)};
-    color: ${({ theme }) => theme.colors.textPrimary};
+    color: ${({ theme }) => theme.colors.textSecondary};
     text-align: left;
     border-radius: ${({ theme }) => theme.radii.sm};
     cursor: pointer;

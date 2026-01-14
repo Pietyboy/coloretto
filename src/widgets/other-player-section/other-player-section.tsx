@@ -8,11 +8,12 @@ const { Flex } = Components;
 type TOtherPlayerSectionProps = {
   isPaused: boolean;
   otherPlayers: TOtherPlayer[];
+  turnStartTime?: null | string;
   turnDuration: number;
 };
 
-export const OtherPlayerSection = ({ isPaused, otherPlayers, turnDuration }: TOtherPlayerSectionProps) => (
-  <Flex direction="row" justify="space-evenly">
+export const OtherPlayerSection = ({ isPaused, otherPlayers, turnDuration, turnStartTime }: TOtherPlayerSectionProps) => (
+  <Flex direction="row" fullWidth justify="space-evenly">
     {otherPlayers.map((player, index) => (
       <OtherPlayerGameBar
         key={player.playerId ?? index}
@@ -20,6 +21,7 @@ export const OtherPlayerSection = ({ isPaused, otherPlayers, turnDuration }: TOt
         isCurrentTurn={player.isCurrentTurn}
         isPaused={isPaused}
         playerName={player.playerName}
+        turnStartTime={turnStartTime}
         turnDuration={turnDuration}
       />
     ))}

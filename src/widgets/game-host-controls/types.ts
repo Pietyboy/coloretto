@@ -1,2 +1,2 @@
-export type TGameStatus = 'finished' | 'in-progress' | 'paused' | 'unknown' | 'waiting';
+export type TGameStatus = 'active' | 'finished' | 'paused' | 'unknown' | 'waiting';
 

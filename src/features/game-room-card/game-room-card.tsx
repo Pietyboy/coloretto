@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import { Modal } from 'antd';
 import { useNavigate } from 'react-router';
 
 import { useNotify } from '../../hooks/useNotify';
@@ -9,10 +8,11 @@ import { addActiveGame } from '../../shared/lib/active-games';
 import { useCreateNewPlayerMutation, useJoinGameMutation } from '../../store/api/game-api';
 import { useAppSelector } from '../../store/hooks';
 
+import { CreatePlayerModal } from './create-player-modal';
 import { getErrorMessage, getGameDate, hasTextError } from './helpers';
 import type { CreatePlayerFormValues, TGame } from './types';
 
-const { Button, Card, Flex, Form, Input, Typography } = Components;
+const { Button, Card, Flex, Form, Typography } = Components;
 const { Text } = Typography;
 
 type TGameRoomCard = {
@@ -33,6 +33,10 @@ export const GameRoomCard = ({ game, onDelete }: TGameRoomCard) => {
   const [createNewPlayer, { isLoading: isCreatingPlayer }] = useCreateNewPlayerMutation();
 
   const isConnecting = isJoining || isCreatingPlayer;
+  const gameTitle = game.gameName || game.name || `Игра ${game.gameId}`;
+  const playersCountLabel = onDelete
+    ? `${game.maxPlayerCount}`
+    : `${game.currentPlayersCount}/${game.maxPlayerCount}`;
 
   const connectToGame = () => {
     addActiveGame({ gameId: game.gameId, gameName: game.gameName || `Игра ${game.gameId}` });
@@ -116,12 +120,14 @@ export const GameRoomCard = ({ game, onDelete }: TGameRoomCard) => {
 
   return (
     <>
-      <Card height={195} width={180}>
+      <Card height={230} width={210}>
         <Flex align="start" justify="space-between" fullHeight>
           <Flex align="start" direction="column">
-            <Text tone="secondary">{game.gameName}</Text>
             <Text tone="secondary">
-              Количество игроков: {game.currentPlayersCount}/{game.maxPlayerCount}
+              {onDelete ? `Название: ${gameTitle}` : gameTitle}
+            </Text>
+            <Text tone="secondary">
+              Кол-во игроков: {playersCountLabel}
             </Text>
             <Text tone="secondary">Дата создания: {getGameDate(game.startingDate)}</Text>
           </Flex>
@@ -144,37 +150,15 @@ export const GameRoomCard = ({ game, onDelete }: TGameRoomCard) => {
         </Flex>
       </Card>
 
-      <Modal
-        centered
-        cancelText="Отмена"
-        confirmLoading={isCreatingPlayer}
-        okText="Подключиться"
-        open={createPlayerModalOpen}
-        title="Создать игрока"
+      <CreatePlayerModal
+        error={createPlayerError}
+        form={createPlayerForm}
+        isOpen={createPlayerModalOpen}
+        isSubmitting={isCreatingPlayer}
         onCancel={handleCancelCreatePlayer}
-        onOk={() => createPlayerForm.submit()}
-      >
-        <Form<CreatePlayerFormValues>
-          form={createPlayerForm}
-          layout="vertical"
-          requiredMark={false}
-          onFinish={handleSubmitCreatePlayer}
-          onValuesChange={() => setCreatePlayerError(null)}
-        >
-          {createPlayerError ? (
-            <Form.Item style={{ marginBottom: 16 }}>
-              <Typography.Text tone="danger">{createPlayerError}</Typography.Text>
-            </Form.Item>
-          ) : null}
-          <Form.Item
-            label="Никнейм"
-            name="nickname"
-            rules={[{ message: 'Введите никнейм', required: true }]}
-          >
-            <Input appearance="ghostDark" placeholder="Ваш никнейм" />
-          </Form.Item>
-        </Form>
-      </Modal>
+        onFinish={handleSubmitCreatePlayer}
+        onValuesChange={() => setCreatePlayerError(null)}
+      />
     </>
   );
 };

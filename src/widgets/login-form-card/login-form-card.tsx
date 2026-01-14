@@ -63,7 +63,7 @@ export const LoginFormCard = ({
                   }),
                 ]}
               >
-                <Input.Password appearance="ghost" placeholder="Повторите пароль" />
+                <Input.Password appearance="ghostDark" placeholder="Повторите пароль" width="auto"/>
               </Form.Item>
             )}
           </Flex>

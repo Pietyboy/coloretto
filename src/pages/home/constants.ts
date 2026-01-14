@@ -8,7 +8,7 @@ export const maxPlayersSelectOptions = maxPlayersOptions.map(value => ({
 
 export const statusOptions: Array<{ label: string; value: StatusFilter }> = [
   { label: 'Все', value: 'all' },
-  { label: 'В игре', value: 'in-progress' },
+  { label: 'В игре', value: 'active' },
   { label: 'Завершены', value: 'finished' },
 ];
 

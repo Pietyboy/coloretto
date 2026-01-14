@@ -1,4 +1,4 @@
-import { Card, Flex, Image, Typography } from '../../shared/ui/components';
+import { Card, Empty, Flex, Image, Typography } from '../../shared/ui/components';
 import { HandCardIndicator } from '../hand-card-indicator';
 import { getHandCardIndicator } from '../player-gamebar/helpers';
 import { Profile } from '../profile';
@@ -13,10 +13,11 @@ type TPlayerGameBarProps = {
   isPaused?: boolean;
   playerName?: null | string;
   turnDuration?: number;
+  turnStartTime?: null | string;
 };
 
 export const OtherPlayerGameBar = (props: TPlayerGameBarProps) => {
-  const { cards = [], isCurrentTurn = false, isPaused = false, playerName, turnDuration = 40 } = props;
+  const { cards = [], isCurrentTurn = false, isPaused = false, playerName, turnDuration = 40, turnStartTime } = props;
   const displayName = playerName;
   const gridColumns = Math.min(Math.max(cards.length || 3, 3), 5);
 
@@ -25,7 +26,11 @@ export const OtherPlayerGameBar = (props: TPlayerGameBarProps) => {
       <Flex direction="row" justify="space-between">
         <Card animation="none" height={65} padding="sm" width={80}>
           <Flex align="center" fullWidth fullHeight justify="center">
-            {isCurrentTurn ? <Timer duration={turnDuration} paused={isPaused} /> : <Image variant="lockIcon" width={25} />}
+            {isCurrentTurn ? (
+              <Timer duration={turnDuration} paused={isPaused} startAt={turnStartTime} />
+            ) : (
+              <Image variant="lockIcon" width={25} />
+            )}
           </Flex>
         </Card>
         <Flex align="center" justify="center">
@@ -37,7 +42,7 @@ export const OtherPlayerGameBar = (props: TPlayerGameBarProps) => {
       <Card animation="none" fullWidth padding="sm">
         {cards.length === 0 ? (
           <Flex align="center">
-            <Typography.Text tone="secondary">Карт нет</Typography.Text>
+            <Empty message="Карт нет" style={{ margin: 0 }} />
           </Flex>
         ) : (
           <IndicatorsGrid $columns={gridColumns}>

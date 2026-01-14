@@ -2,6 +2,8 @@ import { Modal } from 'antd';
 
 import { Components } from '../../shared';
 
+import { Footer } from './footer';
+
 const { Typography } = Components;
 
 type DeleteGameModalProps = {
@@ -19,14 +21,10 @@ export const DeleteGameModal = ({
 }: DeleteGameModalProps) => (
   <Modal
     centered
-    cancelText="Отмена"
-    confirmLoading={isLoading}
-    okButtonProps={{ danger: true }}
-    okText="Удалить"
+    footer={<Footer isSubmitting={isLoading} onCancel={onCancel} onConfirm={onConfirm} />}
     open={isOpen}
     title="Удалить игру"
     onCancel={onCancel}
-    onOk={onConfirm}
   >
     <Typography.Text>Вы точно хотите удалить эту игру?</Typography.Text>
   </Modal>

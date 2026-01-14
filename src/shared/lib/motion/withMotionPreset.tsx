@@ -87,6 +87,9 @@ export const withMotionPreset = <P extends object>(BaseComponent: ComponentType<
 
     const motionComponentProps = {
       ...(componentProps as unknown as ComponentProps<typeof MotionComponent>),
+      animate: preset.animate,
+      exit: preset.exit,
+      initial: preset.initial,
       onMouseLeave: composedMouseLeave,
       onMouseMove: composedMouseMove,
       style: mergedStyle,

@@ -3,6 +3,7 @@ import { Modal } from 'antd';
 
 import { Components } from '../../shared';
 
+import { Footer } from './footer';
 import type { CreateGameFormValues, SelectOption } from './types';
 
 const { Form, Input, Select, Typography } = Components;
@@ -29,58 +30,58 @@ export const CreateGameModal = ({
   onFinish,
   onValuesChange,
   turnTimeOptions,
-}: CreateGameModalProps) => (
-  <Modal
-    centered
-    cancelText="Отмена"
-    confirmLoading={isSubmitting}
-    okText="Создать"
-    open={isOpen}
-    onCancel={onCancel}
-    onOk={() => form.submit()}
-  >
-    <Typography.Title level={4} style={{ marginTop: 0 }}>
-      Создать игру
-    </Typography.Title>
-    <Form<CreateGameFormValues>
-      form={form}
-      layout="vertical"
-      requiredMark={false}
-      onFinish={onFinish}
-      onValuesChange={onValuesChange}
+}: CreateGameModalProps) => {
+
+  return (
+    <Modal
+      centered
+      footer={<Footer isSubmitting={isSubmitting} onCancel={onCancel} onClick={form.submit}/>}
+      open={isOpen}
+      onCancel={onCancel}
     >
-      {error ? (
-        <Form.Item style={{ marginBottom: 16 }}>
-          <Typography.Text tone="danger">{error}</Typography.Text>
+      <Typography.Title level={4} style={{ marginTop: 0 }}>
+        Создать игру
+      </Typography.Title>
+      <Form<CreateGameFormValues>
+        form={form}
+        layout="vertical"
+        requiredMark={false}
+        onFinish={onFinish}
+        onValuesChange={onValuesChange}
+      >
+        {error ? (
+          <Form.Item style={{ marginBottom: 16 }}>
+            <Typography.Text tone="danger">{error}</Typography.Text>
+          </Form.Item>
+        ) : null}
+        <Form.Item
+          label="Название игры"
+          name="gameName"
+          rules={[{ message: 'Введите название игры', required: true }]}
+        >
+          <Input appearance="ghostDark" placeholder="Название" />
         </Form.Item>
-      ) : null}
-      <Form.Item
-        label="Название игры"
-        name="gameName"
-        rules={[{ message: 'Введите название игры', required: true }]}
-      >
-        <Input appearance="ghostDark" placeholder="Название" />
-      </Form.Item>
-      <Form.Item
-        label="Количество игроков"
-        name="maxSeatsCount"
-        rules={[{ message: 'Выберите количество игроков', required: true }]}
-      >
-        <Select
-          options={maxSeatsOptions}
-          placeholder="3-5"
-        />
-      </Form.Item>
-      <Form.Item
-        label="Время на ход (сек)"
-        name="turnTime"
-        rules={[{ message: 'Выберите время на ход', required: true }]}
-      >
-        <Select
-          options={turnTimeOptions}
-          placeholder="20-60"
-        />
-      </Form.Item>
-    </Form>
-  </Modal>
-);
+        <Form.Item
+          label="Количество игроков"
+          name="maxSeatsCount"
+          rules={[{ message: 'Выберите количество игроков', required: true }]}
+        >
+          <Select
+            options={maxSeatsOptions}
+            placeholder="3-5"
+          />
+        </Form.Item>
+        <Form.Item
+          label="Время на ход (сек)"
+          name="turnTime"
+          rules={[{ message: 'Выберите время на ход', required: true }]}
+        >
+          <Select
+            options={turnTimeOptions}
+            placeholder="20-60"
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};

@@ -20,6 +20,7 @@ export type DeckProps = {
   topCardId?: number;
   onCardDragStart?: (card: TRevealedCard & { variant: ImageVariant }) => void;
   onCardDragEnd?: () => void;
+  onRevealChange?: (isRevealed: boolean) => void;
   onRevealBlocked?: () => void;
   onRevealError?: (message: string) => void;
 };
@@ -32,6 +33,7 @@ export const Deck = ({
   onCardDragEnd,
   onCardDragStart,
   onRevealBlocked,
+  onRevealChange,
   onRevealError,
   topCardId,
 }: DeckProps) => {
@@ -43,7 +45,8 @@ export const Deck = ({
 
   const stackCount = Math.min(count ?? 0, 6);
   const isDeckEmpty = count <= 0;
-  const displayTopCard = isFlipped && revealedVariant ? revealedVariant : GameCard.BackCard;
+  const displayTopCard =
+    isCurrentTurn && isFlipped && revealedVariant ? revealedVariant : GameCard.BackCard;
   const isDraggable = isCurrentTurn && !!revealedVariant && !isDeckEmpty;
 
   useEffect(() => {
@@ -59,7 +62,17 @@ export const Deck = ({
     setIsFlipped(false);
     setRevealedVariant(null);
     setRevealedCard(null);
-  }, [gameId, topCardId]);
+    onRevealChange?.(false);
+  }, [gameId, onRevealChange, topCardId]);
+
+  useEffect(() => {
+    if (!isCurrentTurn) {
+      setIsFlipped(false);
+      setRevealedVariant(null);
+      setRevealedCard(null);
+      onRevealChange?.(false);
+    }
+  }, [isCurrentTurn, onRevealChange]);
 
   const handleFlip = async () => {
     if (!topCardId || !gameId || isFetching) return;
@@ -72,6 +85,7 @@ export const Deck = ({
     }
 
     try {
+      onRevealChange?.(true);
       await loadTopCard({ cardId: topCardId, gameId }).unwrap();
     } catch (e) {
       const message =
@@ -79,6 +93,7 @@ export const Deck = ({
           ? ((e as { data?: { error?: unknown } }).data?.error as string | undefined)
           : undefined;
       onRevealError?.(message || 'Не удалось открыть карту');
+      onRevealChange?.(false);
     }
   };
 

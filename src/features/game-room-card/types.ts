@@ -9,6 +9,7 @@ export type TGame = {
   currentTurnPlayer: string;
   gameId: number;
   gameName: string;
+  name?: string;
   isFinished: boolean;
   maxPlayerCount: number;
   players: TPlayer[];

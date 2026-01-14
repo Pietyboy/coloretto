@@ -83,6 +83,8 @@ export const CreateGamePage = () => {
       });
   }, [hasSeats, hostedGames, maxPlayers, search, sortBy, status]);
 
+  const emptyText = hostedGames.length === 0 ? 'У вас пока нет игр' : 'Игры не найдены';
+
   const resetFilters = () => {
     setStatus('all');
     setHasSeats(false);
@@ -158,6 +160,7 @@ export const CreateGamePage = () => {
         <GameFilters
           actionsSlot={(
             <Button
+              height={40}
               size="sm"
               variant="primary"
               onClick={openCreateModal}
@@ -182,6 +185,7 @@ export const CreateGamePage = () => {
         />
 
         <GameCardsGrid
+          emptyText={emptyText}
           isLoading={isLoading}
           items={filteredGames}
           renderItem={(game) => (

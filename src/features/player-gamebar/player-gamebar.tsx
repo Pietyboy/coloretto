@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
 import { Components } from '../../shared';
+import { GameHostControls } from '../../widgets';
+import { TGameStatus } from '../../widgets/game-host-controls/types';
 import { HandCardIndicator } from '../hand-card-indicator';
 import { Timer } from '../timer';
 
@@ -12,24 +14,42 @@ const { Button, Card, Flex, Image } = Components;
 
 type TPlayerGameBarProps = {
   cards: TCard[];
+  gameId: number;
+  gameStatus: TGameStatus;
   isCurrentTurn?: boolean;
   isPaused?: boolean;
   turnDuration?: number;
+  turnStartTime?: null | string;
 };
 
 export const PlayerGameBar = (props: TPlayerGameBarProps) => {
   const [isRuleSidebarOpen, setRuleSidebarOpen] = useState(false);
-  const { cards = [], isCurrentTurn = false, isPaused = false, turnDuration = 40 } = props;
+  const {
+    cards = [],
+    gameId,
+    gameStatus,
+    isCurrentTurn = false,
+    isPaused = false,
+    turnDuration = 40,
+    turnStartTime,
+  } = props;
 
   return (
-    <Flex gap={5}>
-      <Card animation="none" height={65} padding="sm" width={80}>
-        <Flex align="center" fullWidth fullHeight justify="center">
-          {isCurrentTurn ? <Timer duration={turnDuration} paused={isPaused} /> : <Image variant="lockIcon" width={25} />}
-        </Flex>
-      </Card>
+    <Flex fullWidth gap={5}>
+      <Flex align='center' direction='row' fullWidth justify='space-between'>
+          <Card animation="none" height={65} padding="sm" width={80}>
+          <Flex align="center" fullWidth fullHeight justify="center">
+            {isCurrentTurn ? (
+              <Timer duration={turnDuration} paused={isPaused} startAt={turnStartTime} />
+            ) : (
+              <Image variant="lockIcon" width={25} />
+            )}
+          </Flex>
+        </Card>
+        <GameHostControls gameId={gameId} gameStatus={gameStatus}/>
+      </Flex>
       <Flex align="center" direction="row" gap={5} fullWidth>
-        <Card animation="none" fullWidth>
+        <Card animation="none" fullWidth height={63}>
           <Flex direction="row" gap={20} fullWidth justify="center">
             {cards.map((card, index) => (
               <HandCardIndicator

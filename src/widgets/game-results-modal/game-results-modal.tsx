@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router';
 import { Components } from '../../shared';
 import { useGetGameScoresQuery } from '../../store/api/game-api';
 
+import { Footer } from './footer';
 import { normalizeGameScores } from './helpers';
 
-const { Button, Flex, Typography } = Components;
+const { Empty, Flex, Typography } = Components;
 
 type GameResultsModalProps = {
   gameId: number;
@@ -28,23 +29,19 @@ export const GameResultsModal = ({ gameId, open }: GameResultsModalProps) => {
     <Modal
       centered
       closable={false}
-      footer={(
-        <Button size="md" variant="primary" onClick={() => navigate('/')}>
-          К списку игр
-        </Button>
-      )}
+      footer={<Footer onClick={() => navigate('/')} />}
       maskClosable={false}
       open={open}
     >
       <Flex direction="column" gap={12}>
-        <Typography.Text size="medium" weight="semibold">
+        <Typography.Text size="medium" tone='secondary' weight="semibold">
           Итоги игры
         </Typography.Text>
         {isFetchingGameScores && (
           <Typography.Text tone="secondary">Получаем таблицу результатов...</Typography.Text>
         )}
         {!isFetchingGameScores && scoreRows.length === 0 && (
-          <Typography.Text tone="secondary">Не удалось получить таблицу результатов</Typography.Text>
+          <Empty message="Не удалось получить таблицу результатов" style={{ margin: 0 }} />
         )}
         {scoreRows.length > 0 && (
           <Flex direction="column" gap={8}>
@@ -62,13 +59,13 @@ export const GameResultsModal = ({ gameId, open }: GameResultsModalProps) => {
             {scoreRows.map((row, index) => (
               <Flex key={row.playerId ?? index} direction="row" gap={12}>
                 <Flex style={{ width: 36 }}>
-                  <Typography.Text>{index + 1}</Typography.Text>
+                  <Typography.Text tone="secondary">{index + 1}</Typography.Text>
                 </Flex>
                 <Flex style={{ flex: 1, minWidth: 0 }}>
-                  <Typography.Text ellipsis>{row.nickname}</Typography.Text>
+                  <Typography.Text ellipsis tone="secondary">{row.nickname}</Typography.Text>
                 </Flex>
                 <Flex justify="end" style={{ width: 80 }}>
-                  <Typography.Text>{row.score}</Typography.Text>
+                  <Typography.Text tone="secondary">{row.score}</Typography.Text>
                 </Flex>
               </Flex>
             ))}
@@ -78,4 +75,3 @@ export const GameResultsModal = ({ gameId, open }: GameResultsModalProps) => {
     </Modal>
   );
 };
-

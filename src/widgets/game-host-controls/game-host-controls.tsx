@@ -2,9 +2,10 @@ import { useNotify } from '../../hooks/useNotify';
 import { Components } from '../../shared';
 import { useGetHostedGamesQuery, usePauseGameMutation, useResumeGameMutation, useStartGameMutation } from '../../store/api/game-api';
 
+import { ButtonHeight } from './constants';
 import type { TGameStatus } from './types';
 
-const { Button, Card, Flex } = Components;
+const { Button, Flex } = Components;
 
 type GameHostControlsProps = {
   gameId: number;
@@ -64,24 +65,51 @@ export const GameHostControls = ({ gameId, gameStatus }: GameHostControlsProps) 
     }
   };
 
+  const getHandleAction = (status: string) => {
+    switch(status) {
+      case 'waiting': {
+        return handleStartGame;
+      }
+      case 'paused': {
+        return handleResumeGame;
+      }
+      default: {
+        return handlePauseGame;
+      }
+    }
+  }
+
+  const getButtonText = (status: string) => {
+    switch(status) {
+      case 'waiting': {
+        return 'Начать';
+      }
+      case 'paused': {
+        return 'Продолжить';
+      }
+      default: {
+        return 'Пауза';
+      }
+    }
+  }
+
   if (!isHost || gameStatus === 'finished') return null;
 
   return (
-    <Card animation="none" height={65} padding="sm" width={260}>
       <Flex align="center" direction="row" fullHeight gap={8} justify="center">
-        {gameStatus === 'waiting' && (
           <Button
             disabled={isAnyHostActionLoading}
+            height={ButtonHeight}
             size="sm"
             variant="primary"
-            onClick={handleStartGame}
+            onClick={getHandleAction(gameStatus)}
           >
-            Начать
+            {getButtonText(gameStatus)}
           </Button>
-        )}
-        {gameStatus === 'in-progress' && (
+        {/* {gameStatus === 'active' && (
           <Button
             disabled={isAnyHostActionLoading}
+            height={ButtonHeight}
             size="sm"
             variant="outline"
             onClick={handlePauseGame}
@@ -92,17 +120,19 @@ export const GameHostControls = ({ gameId, gameStatus }: GameHostControlsProps) 
         {gameStatus === 'paused' && (
           <Button
             disabled={isAnyHostActionLoading}
+            height={ButtonHeight}
             size="sm"
             variant="outline"
             onClick={handleResumeGame}
           >
             Продолжить
           </Button>
-        )}
-        {gameStatus === 'unknown' && (
+        )} */}
+        {/* {gameStatus === 'unknown' && (
           <>
             <Button
               disabled={isAnyHostActionLoading}
+              height={ButtonHeight}
               size="sm"
               variant="primary"
               onClick={handleStartGame}
@@ -111,6 +141,7 @@ export const GameHostControls = ({ gameId, gameStatus }: GameHostControlsProps) 
             </Button>
             <Button
               disabled={isAnyHostActionLoading}
+              height={ButtonHeight}
               size="sm"
               variant="outline"
               onClick={handlePauseGame}
@@ -119,6 +150,7 @@ export const GameHostControls = ({ gameId, gameStatus }: GameHostControlsProps) 
             </Button>
             <Button
               disabled={isAnyHostActionLoading}
+              height={ButtonHeight}
               size="sm"
               variant="outline"
               onClick={handleResumeGame}
@@ -126,8 +158,7 @@ export const GameHostControls = ({ gameId, gameStatus }: GameHostControlsProps) 
               Продолжить
             </Button>
           </>
-        )}
+        )} */}
       </Flex>
-    </Card>
   );
 };

@@ -52,14 +52,14 @@ export const GameFilters = <TStatus extends string, TSort extends string>({
     <Select
       options={statusOptions}
       placeholder="Статус"
-      style={{ width: 200 }}
+      style={{ height: 40, width: 200 }}
       value={status}
       onChange={value => onStatusChange(value as TStatus)}
     />
     <Select
       options={sortOptions}
       placeholder="Сортировка"
-      style={{ width: 180 }}
+      style={{ height: 40, width: 180 }}
       value={sortBy}
       onChange={value => onSortChange(value as TSort)}
     />
@@ -68,11 +68,12 @@ export const GameFilters = <TStatus extends string, TSort extends string>({
       mode="multiple"
       options={maxPlayersOptions}
       placeholder="Макс. игроков"
-      style={{ minWidth: 160 }}
+      style={{ height: 40, minWidth: 160 }}
       value={maxPlayers}
       onChange={value => onMaxPlayersChange(value as number[])}
     />
     <Button
+      height={40}
       size="sm"
       variant={hasSeats ? 'accent' : 'outline'}
       onClick={onToggleSeats}
@@ -80,6 +81,7 @@ export const GameFilters = <TStatus extends string, TSort extends string>({
       Есть свободные места
     </Button>
     <Button
+      height={40}
       size="sm"
       variant="outline"
       onClick={onReset}
