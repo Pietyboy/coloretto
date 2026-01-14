@@ -31,6 +31,16 @@ type Row = {
     cards: null | TCard[]
 }
 
+export type TPlayerColorsStatus = {
+    playerId: number,
+    isColorsPicked: boolean
+}
+
+export type TPlayerJokersStatus = {
+    playerId: number,
+    isJokersPicked: boolean
+}
+
 export type TPlayer = {
     playerId: number,
     nickname: string,
@@ -52,6 +62,10 @@ export type TGameState = {
     },
     remainingCardsCount: number,
     players: null | TPlayer[],
+    playersColorsStatus?: null | TPlayerColorsStatus[],
+    playersJokersStatus?: null | TPlayerJokersStatus[],
+    players_colors_status?: null | TPlayerColorsStatus[],
+    players_jokers_status?: null | TPlayerJokersStatus[],
     currentTurnStartTime: string,
     isGameFinished: boolean
 }

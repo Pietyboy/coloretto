@@ -2,6 +2,7 @@ import { Modal } from 'antd';
 import { useNavigate } from 'react-router';
 
 import { Components } from '../../shared';
+import { removeActiveGame } from '../../shared/lib/active-games';
 import { useGetGameScoresQuery } from '../../store/api/game-api';
 
 import { Footer } from './footer';
@@ -17,6 +18,11 @@ type GameResultsModalProps = {
 export const GameResultsModal = ({ gameId, open }: GameResultsModalProps) => {
   const navigate = useNavigate();
 
+  const handleBackToGames = () => {
+    removeActiveGame(gameId);
+    navigate('/');
+  };
+
   const { data: gameScoresData, isFetching: isFetchingGameScores } = useGetGameScoresQuery(gameId, {
     refetchOnFocus: false,
     refetchOnReconnect: false,
@@ -29,7 +35,7 @@ export const GameResultsModal = ({ gameId, open }: GameResultsModalProps) => {
     <Modal
       centered
       closable={false}
-      footer={<Footer onClick={() => navigate('/')} />}
+      footer={<Footer onClick={handleBackToGames} />}
       maskClosable={false}
       open={open}
     >

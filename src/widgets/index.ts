@@ -3,6 +3,7 @@ export * from './delete-game-modal';
 export { GameCardSection } from './game-card-section/gameCardSection';
 export * from './game-cards-grid';
 export * from './game-filters';
+export * from './game-finish-waiting-modal';
 export * from './game-host-controls';
 export * from './game-results-modal';
 export * from './hero-section';

@@ -8,7 +8,7 @@ import { Page } from '../../shared/ui/components';
 import { useGetGameStateQuery, useGetPlayerForGameQuery } from '../../store/api/game-api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setGameState } from '../../store/slices/game-slice';
-import { GameCardSection, GameResultsModal, OtherPlayerSection } from '../../widgets';
+import { GameCardSection, GameFinishWaitingModal, GameResultsModal, OtherPlayerSection } from '../../widgets';
 
 import { GAME_PAGE_GRID_STYLE } from './constants';
 import { getUiGameStatus, MapGameData, mapHandToUiCards } from './helpers';
@@ -50,6 +50,8 @@ export const GamePage = () => {
   const areAllRowsCollected = gameState.rows.length > 0 && gameState.rows.every(row => !row.isActive);
   const isFinalStage = isDeckEmpty && areAllRowsCollected;
 
+  console.log('gameState.rows.length > 0', gameState.rows.length > 0);
+
   const currentPlayerId = playerForGame?.player_id ?? gameState.playerInfo?.playerId ?? null;
   const playersFromState = Array.isArray(data?.state?.players) ? data?.state?.players : null;
   const currentPlayerFromState =
@@ -60,29 +62,78 @@ export const GamePage = () => {
     currentPlayerFromState?.hand?.filter(
       card => card.type?.toLowerCase() === 'joker' && card.color?.toLowerCase() === 'none'
     ) ?? [];
-  const shouldShowJokerColorsModal = isFinalStage && !isPaused && unresolvedJokers.length > 0 && !!currentPlayerId;
 
-  const allPlayersHaveColoredJokers = playersFromState
+  const playersColorsStatus = Array.isArray(data?.state?.playersColorsStatus)
+    ? data?.state?.playersColorsStatus
+    : Array.isArray(data?.state?.players_colors_status)
+      ? data?.state?.players_colors_status
+      : null;
+  const playersJokersStatus = Array.isArray(data?.state?.playersJokersStatus)
+    ? data?.state?.playersJokersStatus
+    : Array.isArray(data?.state?.players_jokers_status)
+      ? data?.state?.players_jokers_status
+      : null;
+
+  const currentPlayerColorsRaw = currentPlayerFromState?.colors;
+  const currentPlayerSelectedColors = Array.isArray(currentPlayerColorsRaw) ? currentPlayerColorsRaw : [];
+
+  const currentPlayerColorsStatus = currentPlayerId && playersColorsStatus
+    ? playersColorsStatus.find(player => player.playerId === currentPlayerId) ?? null
+    : null;
+  const currentPlayerJokersStatus = currentPlayerId && playersJokersStatus
+    ? playersJokersStatus.find(player => player.playerId === currentPlayerId) ?? null
+    : null;
+
+  const isCurrentPlayerJokersPicked =
+    currentPlayerJokersStatus?.isJokersPicked ?? unresolvedJokers.length === 0;
+  const isCurrentPlayerColorsPicked =
+    currentPlayerColorsStatus?.isColorsPicked ?? currentPlayerSelectedColors.length === 3;
+
+  const fallbackAllPlayersJokersPicked = playersFromState
     ? playersFromState.every(player => {
         const hand = Array.isArray(player.hand) ? player.hand : [];
         return hand.every(card => card.type?.toLowerCase() !== 'joker' || card.color?.toLowerCase() !== 'none');
       })
     : false;
-  const allPlayersSelectedColors = playersFromState
+  const fallbackAllPlayersColorsPicked = playersFromState
     ? playersFromState.every(player => Array.isArray(player.colors) && player.colors.length === 3)
     : false;
-  const isResultsReady =
-    isFinalStage && gameStatus === 'finished' && allPlayersHaveColoredJokers && allPlayersSelectedColors;
-  const currentPlayerColorsRaw = currentPlayerFromState?.colors;
-  const currentPlayerSelectedColors = Array.isArray(currentPlayerColorsRaw) ? currentPlayerColorsRaw : [];
+
+  const allPlayersJokersPicked = playersJokersStatus
+    ? playersJokersStatus.every(player => player.isJokersPicked)
+    : fallbackAllPlayersJokersPicked;
+  const allPlayersColorsPicked = playersColorsStatus
+    ? playersColorsStatus.every(player => player.isColorsPicked)
+    : fallbackAllPlayersColorsPicked;
+
+  const isResultsReady = isFinalStage && gameStatus === 'finished' && allPlayersJokersPicked && allPlayersColorsPicked;
+
+  const shouldShowJokerColorsModal =
+    isFinalStage &&
+    gameStatus === 'finished' &&
+    !isPaused &&
+    !isCurrentPlayerJokersPicked &&
+    unresolvedJokers.length > 0 &&
+    !!currentPlayerId;
+
   const shouldShowChooseColorsModal =
     isFinalStage &&
     gameStatus === 'finished' &&
     !isPaused &&
-    allPlayersHaveColoredJokers &&
-    currentPlayerSelectedColors.length !== 3 &&
+    isCurrentPlayerJokersPicked &&
+    !isCurrentPlayerColorsPicked &&
     !!currentPlayerId &&
     !shouldShowJokerColorsModal;
+
+  const shouldShowWaitingOtherPlayersModal =
+    isFinalStage &&
+    gameStatus === 'finished' &&
+    !isPaused &&
+    isCurrentPlayerJokersPicked &&
+    isCurrentPlayerColorsPicked &&
+    !isResultsReady;
+
+    console.log('isFinalStage', isFinalStage);
 
   useEffect(() => {
     setStopPolling(false);
@@ -137,6 +188,7 @@ export const GamePage = () => {
         </Flex>
       </Flex>
       <GameResultsModal gameId={gameId} open={isResultsReady} />
+      <GameFinishWaitingModal open={shouldShowWaitingOtherPlayersModal} />
     </Page>
   );
 };
