@@ -6,6 +6,7 @@ export * from './game-filters';
 export * from './game-finish-waiting-modal';
 export * from './game-host-controls';
 export * from './game-results-modal';
+export * from './game-state-error-modal';
 export * from './hero-section';
 export * from './login-aside';
 export * from './login-form-card';

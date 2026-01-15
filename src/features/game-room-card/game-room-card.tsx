@@ -124,7 +124,7 @@ export const GameRoomCard = ({ game, onDelete }: TGameRoomCard) => {
         <Flex align="start" justify="space-between" fullHeight>
           <Flex align="start" direction="column">
             <Text tone="secondary">
-              {onDelete ? `Название: ${gameTitle}` : gameTitle}
+              Название: {gameTitle}
             </Text>
             <Text tone="secondary">
               Кол-во игроков: {playersCountLabel}

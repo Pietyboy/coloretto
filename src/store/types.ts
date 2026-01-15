@@ -12,6 +12,7 @@ export type TPlayerHand = {
 export type TPlayerInfo = {
   isCurrentTurn: boolean;
   isTurnAvailable: boolean;
+  isConnected?: boolean;
   playerHand: null | TPlayerHand[];
   playerId: number;
   playerName: string;

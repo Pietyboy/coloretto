@@ -41,13 +41,13 @@ export const ScoreColorsModal = ({
       open={isOpen}
     >
       <Flex direction="column" gap={12}>
-        <Typography.Text size="regular" weight="medium">
+        <Typography.Text size="regular" tone="secondary" weight="medium">
           Выберите 3 цвета для подсчёта очков
         </Typography.Text>
         <Typography.Text tone="secondary">
           Эти 3 цвета будут приносить положительные очки, все остальные — отрицательные.
         </Typography.Text>
-        <Flex direction="column" gap={8}>
+        <Flex align='center' direction="column" gap={8}>
           {[0, 1, 2].map(index => {
             const selectedColorId = scoreColorIds[index];
             const selectedIndicator = JokerColorOptions.find(option => option.colorId === selectedColorId)?.indicator;
@@ -56,14 +56,14 @@ export const ScoreColorsModal = ({
             ) as number[];
 
             return (
-              <Flex key={index} align="center" direction="row" gap={10}>
+              <Flex key={index} align="center" direction="row" gap={100}>
                 {selectedIndicator ? (
                   <Image height={29} variant={selectedIndicator} width={27} />
                 ) : (
-                  <Flex height={29} style={{ border: '1px solid #424041', borderRadius: 6 }} width={27} />
+                  <Image height={29} variant='noColorIndicator' width={27} />
                 )}
                 <Select
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, textAlign: 'center', width: 150 }}
                   placeholder={`Цвет ${index + 1}`}
                   value={selectedColorId ?? undefined}
                   options={JokerColorOptions.map(option => ({

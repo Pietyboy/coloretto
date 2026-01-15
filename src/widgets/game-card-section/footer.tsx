@@ -19,11 +19,11 @@ export const Footer = ({
 }: FooterProps) => (
   <Flex direction="row" justify="end" gap={3}>
     {onCancel && cancelLabel ? (
-      <Button type="button" variant="outlineSecondary" onClick={onCancel}>
+      <Button height={30} onClick={onCancel} type="button" variant="outlineSecondary">
         {cancelLabel}
       </Button>
     ) : null}
-    <Button type="button" variant="accent" disabled={isSubmitting} onClick={onConfirm}>
+    <Button disabled={isSubmitting} height={30} onClick={onConfirm} type="button" variant="accent">
       {confirmLabel}
     </Button>
   </Flex>

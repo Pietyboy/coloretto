@@ -8,10 +8,16 @@ import { Page } from '../../shared/ui/components';
 import { useGetGameStateQuery, useGetPlayerForGameQuery } from '../../store/api/game-api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setGameState } from '../../store/slices/game-slice';
-import { GameCardSection, GameFinishWaitingModal, GameResultsModal, OtherPlayerSection } from '../../widgets';
+import {
+  GameCardSection,
+  GameFinishWaitingModal,
+  GameResultsModal,
+  GameStateErrorModal,
+  OtherPlayerSection,
+} from '../../widgets';
 
 import { GAME_PAGE_GRID_STYLE } from './constants';
-import { getUiGameStatus, MapGameData, mapHandToUiCards } from './helpers';
+import { getRtkQueryErrorMessage, getUiGameStatus, MapGameData, mapHandToUiCards } from './helpers';
 
 const { Flex } = Components;
 
@@ -28,13 +34,24 @@ export const GamePage = () => {
     skip: !gameId,
   });
 
-  const { data } = useGetGameStateQuery(gameId, {
+  const {
+    data,
+    error: gameStateError,
+    isError: isGameStateRequestError,
+  } = useGetGameStateQuery(gameId, {
     pollingInterval: stopPolling ? 0 : 3000,
     refetchOnFocus: !stopPolling,
     refetchOnReconnect: !stopPolling,
     skip: !gameId,
   });
 
+  const serverStateError =
+    typeof (data?.state as unknown as Record<string, unknown> | undefined)?.error === 'string'
+      ? String((data?.state as unknown as Record<string, unknown>).error)
+      : null;
+
+  const isGameStateError = isGameStateRequestError || !!serverStateError;
+  const gameStateErrorMessage = serverStateError ?? getRtkQueryErrorMessage(gameStateError);
   const gameStatus = getUiGameStatus(data?.state);
   const isPaused = gameStatus === 'paused';
   const playerHand = mapHandToUiCards(gameState.playerInfo?.playerHand ?? null);
@@ -49,8 +66,6 @@ export const GamePage = () => {
   const isDeckEmpty = (gameState.cardsCount ?? 0) <= 0;
   const areAllRowsCollected = gameState.rows.length > 0 && gameState.rows.every(row => !row.isActive);
   const isFinalStage = isDeckEmpty && areAllRowsCollected;
-
-  console.log('gameState.rows.length > 0', gameState.rows.length > 0);
 
   const currentPlayerId = playerForGame?.player_id ?? gameState.playerInfo?.playerId ?? null;
   const playersFromState = Array.isArray(data?.state?.players) ? data?.state?.players : null;
@@ -133,21 +148,21 @@ export const GamePage = () => {
     isCurrentPlayerColorsPicked &&
     !isResultsReady;
 
-    console.log('isFinalStage', isFinalStage);
-
   useEffect(() => {
     setStopPolling(false);
   }, [gameId]);
 
   useEffect(() => {
-    setStopPolling(isResultsReady);
-  }, [isResultsReady]);
+    if (isResultsReady || isGameStateError) {
+      setStopPolling(true);
+    }
+  }, [isResultsReady, isGameStateError]);
 
   useEffect(() => {
-    if (data?.state) {
+    if (data?.state && !serverStateError) {
       dispatch(setGameState(MapGameData(data.state, playerForGame?.player_id, playerForGame?.nickname)));
     }
-  }, [data?.state, dispatch, playerForGame?.nickname, playerForGame?.player_id]);
+  }, [data?.state, dispatch, playerForGame?.nickname, playerForGame?.player_id, serverStateError]);
 
   return (
     <Page>
@@ -165,9 +180,9 @@ export const GamePage = () => {
             cardsCount={gameState.cardsCount}
             currentPlayerId={currentPlayerId ?? -1}
             gameId={gameId}
-            isColorModalOpen={shouldShowChooseColorsModal}
+            isColorModalOpen={!isGameStateError && shouldShowChooseColorsModal}
             isCurrentTurn={gameState.playerInfo?.isCurrentTurn ?? false}
-            isJokerModalOpen={shouldShowJokerColorsModal}
+            isJokerModalOpen={!isGameStateError && shouldShowJokerColorsModal}
             isPaused={isPaused}
             playerId={gameState.playerInfo?.playerId ?? -1}
             rows={gameState.rows}
@@ -187,8 +202,9 @@ export const GamePage = () => {
           />
         </Flex>
       </Flex>
-      <GameResultsModal gameId={gameId} open={isResultsReady} />
-      <GameFinishWaitingModal open={shouldShowWaitingOtherPlayersModal} />
+      <GameResultsModal gameId={gameId} open={!isGameStateError && isResultsReady} />
+      <GameFinishWaitingModal open={!isGameStateError && shouldShowWaitingOtherPlayersModal} />
+      <GameStateErrorModal gameId={gameId} message={gameStateErrorMessage} open={isGameStateError} />
     </Page>
   );
 };

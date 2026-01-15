@@ -13,3 +13,4 @@ export const Footer = ({ onClick }: FooterProps) => (
     </Button>
   </Flex>
 );
+

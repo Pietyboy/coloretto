@@ -18,6 +18,7 @@ export const OtherPlayerSection = ({ isPaused, otherPlayers, turnDuration, turnS
       <OtherPlayerGameBar
         key={player.playerId ?? index}
         cards={player.cards}
+        isConnected={player.isConnected}
         isCurrentTurn={player.isCurrentTurn}
         isPaused={isPaused}
         playerName={player.playerName}

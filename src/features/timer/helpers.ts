@@ -5,7 +5,15 @@ export const parseStartAt = (value?: null | number | string) => {
     return value;
   }
   if (typeof value === 'string') {
-    const parsed = Date.parse(value);
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+
+    const asNumber = Number(trimmed);
+    if (Number.isFinite(asNumber)) {
+      return asNumber < 1e12 ? asNumber * 1000 : asNumber;
+    }
+
+    const parsed = Date.parse(trimmed);
     return Number.isNaN(parsed) ? null : parsed;
   }
   return null;

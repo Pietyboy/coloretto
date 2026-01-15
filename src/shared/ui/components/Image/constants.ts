@@ -9,6 +9,7 @@ import purpleCard from '../../../../assets/cards/purple-card.svg';
 import redCard from '../../../../assets/cards/red-card.svg';
 import yellowCard from '../../../../assets/cards/yellow-card.svg';
 import bookIcon from '../../../../assets/icons/book.svg';
+import botIcon from '../../../../assets/icons/bot.svg';
 import closeIcon from '../../../../assets/icons/close.svg';
 import closeBlackIcon from '../../../../assets/icons/closeBlack.svg';
 import lockIcon from '../../../../assets/icons/lock.svg';
@@ -17,7 +18,9 @@ import blueIndicator from '../../../../assets/indicators/blue.svg';
 import brownIndicator from '../../../../assets/indicators/brown.svg';
 import greenIndicator from '../../../../assets/indicators/green.svg';
 import jokerIndicator from '../../../../assets/indicators/joker.svg';
+import noColorIndicator from '../../../../assets/indicators/no-color.svg';
 import orangeIndicator from '../../../../assets/indicators/orange.svg';
+import plusTwoDarkIndicator from '../../../../assets/indicators/plus-two-dark.svg';
 import plusTwoIndicator from '../../../../assets/indicators/plus-two.svg';
 import purpleIndicator from '../../../../assets/indicators/purple.svg';
 import redIndicator from '../../../../assets/indicators/red.svg';
@@ -28,6 +31,7 @@ export const imageSources = {
   blueCard,
   blueIndicator,
   bookIcon,
+  botIcon,
   brownCard,
   brownIndicator,
   closeBlackIcon,
@@ -37,9 +41,11 @@ export const imageSources = {
   jokerCard,
   jokerIndicator,
   lockIcon,
+  noColorIndicator,
   orangeCard,
   orangeIndicator,
   plusTwoCard,
+  plusTwoDarkIndicator,
   plusTwoIndicator,
   profileIcon,
   purpleCard,

@@ -25,6 +25,7 @@ export const getUiGameStatus = (state: unknown): TGameStatus => {
 };
 
 const mapPlayer = (player: TPlayer, allowJokerColors: boolean): TPlayerInfo => ({
+  isConnected: player.isConnected,
   isCurrentTurn: player.isCurrentTurn,
   isTurnAvailable: player.isCurrentTurn,
   playerHand: groupCardsByColorAndType(player.hand, { allowJokerColors }),
@@ -128,3 +129,42 @@ export const mapHandToUiCards = (hand: null | TPlayerHand[]): TPlayerCard[] =>
     count: handItem.cardsCount,
     type: normalizeType(handItem.card.cardType),
   }));
+
+export const getRtkQueryErrorMessage = (error: unknown): string => {
+  const fallback = 'Не удалось получить состояние игры';
+
+  if (!error) return fallback;
+  if (typeof error === 'string') return error;
+
+  if (typeof error === 'object') {
+    const errorRecord = error as Record<string, unknown>;
+    const data = errorRecord.data;
+
+    if (typeof data === 'string') return data;
+
+    if (data && typeof data === 'object') {
+      const dataRecord = data as Record<string, unknown>;
+      if (typeof dataRecord.error === 'string') return dataRecord.error;
+      if (typeof dataRecord.message === 'string') return dataRecord.message;
+
+      const dataState = dataRecord.state;
+      if (dataState && typeof dataState === 'object') {
+        const stateRecord = dataState as Record<string, unknown>;
+        if (typeof stateRecord.error === 'string') return stateRecord.error;
+        if (typeof stateRecord.message === 'string') return stateRecord.message;
+      }
+    }
+
+    const state = errorRecord.state;
+    if (state && typeof state === 'object') {
+      const stateRecord = state as Record<string, unknown>;
+      if (typeof stateRecord.error === 'string') return stateRecord.error;
+      if (typeof stateRecord.message === 'string') return stateRecord.message;
+    }
+
+    if (typeof errorRecord.error === 'string') return errorRecord.error;
+    if (typeof errorRecord.message === 'string') return errorRecord.message;
+  }
+
+  return fallback;
+};

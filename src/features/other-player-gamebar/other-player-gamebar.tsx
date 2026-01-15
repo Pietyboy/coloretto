@@ -9,6 +9,7 @@ import type { TCard } from './types';
 
 type TPlayerGameBarProps = {
   cards: TCard[];
+  isConnected?: boolean;
   isCurrentTurn?: boolean;
   isPaused?: boolean;
   playerName?: null | string;
@@ -17,9 +18,18 @@ type TPlayerGameBarProps = {
 };
 
 export const OtherPlayerGameBar = (props: TPlayerGameBarProps) => {
-  const { cards = [], isCurrentTurn = false, isPaused = false, playerName, turnDuration = 40, turnStartTime } = props;
+  const {
+    cards = [],
+    isConnected,
+    isCurrentTurn = false,
+    isPaused = false,
+    playerName,
+    turnDuration = 40,
+    turnStartTime,
+  } = props;
   const displayName = playerName;
   const gridColumns = Math.min(Math.max(cards.length || 3, 3), 5);
+  const shouldShowBotIcon = isConnected === false;
 
   return (
     <Flex gap={5} minWidth={300}>
@@ -34,7 +44,7 @@ export const OtherPlayerGameBar = (props: TPlayerGameBarProps) => {
           </Flex>
         </Card>
         <Flex align="center" justify="center">
-          <Profile />
+          <Profile iconVariant={shouldShowBotIcon ? 'botIcon' : 'profileIcon'} />
           <Typography.Text>{displayName}</Typography.Text>
         </Flex>
       </Flex>

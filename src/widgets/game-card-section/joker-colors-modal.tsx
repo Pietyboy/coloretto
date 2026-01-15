@@ -43,8 +43,8 @@ export const JokerColorsModal = ({
       maskClosable={false}
       open={isOpen}
     >
-      <Flex direction="column" gap={12}>
-        <Typography.Text size="regular" weight="medium">
+      <Flex align='center' direction="column" gap={12}>
+        <Typography.Text size="regular" tone='secondary' weight="medium">
           Выберите цвет для каждого джокера
         </Typography.Text>
         <Flex direction="column" gap={8}>
@@ -53,16 +53,19 @@ export const JokerColorsModal = ({
             const selectedIndicator = JokerColorOptions.find(option => option.colorId === selectedColorId)?.indicator;
 
             return (
-              <Flex key={joker.cardId} align="center" direction="row" gap={10}>
-                <Image height={29} variant="jokerIndicator" width={27} />
-                <Typography.Text size="medium">→</Typography.Text>
-                {selectedIndicator ? (
-                  <Image height={29} variant={selectedIndicator} width={27} />
-                ) : (
-                  <Flex height={29} style={{ border: '1px solid #424041', borderRadius: 6 }} width={27} />
-                )}
+              <Flex key={joker.cardId} align="center" direction="row" gap={100}>
+                <Flex direction='row' gap={10}>
+                  <Image height={29} variant="jokerIndicator" width={27} />
+                  <Typography.Text size="medium" tone='secondary'>→</Typography.Text>
+                  {selectedIndicator ? (
+                    <Image height={29} variant={selectedIndicator} width={27} />
+                  ) : (
+                    <Flex height={29} style={{ border: '1px solid #424041', borderRadius: 6 }} width={27} />
+                  )}
+                </Flex>
+
                 <Select
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, textAlign: 'center', width: 150 }}
                   placeholder="Выберите цвет"
                   value={selectedColorId ?? undefined}
                   options={JokerColorOptions.map(option => ({ label: option.label, value: option.colorId }))}

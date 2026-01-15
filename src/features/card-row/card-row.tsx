@@ -55,10 +55,10 @@ export const CardRow = ({
 }: CardRowProps) => {
 
     const indicatorVariants = cards.map(card => {
-      if (card === 'plusTwoCard') return 'plusTwoIndicator' as ImageVariant;
-      if (card === 'jokerCard') return 'jokerIndicator' as ImageVariant;
+      if (card === 'plusTwoCard') return 'plusTwoDarkIndicator';
+      if (card === 'jokerCard') return 'jokerIndicator';
       if (card.endsWith('Card')) {
-        return (card.replace('Card', 'Indicator')) as ImageVariant;
+        return (card.replace('Card', 'Indicator'));
       }
       return card;
     });
