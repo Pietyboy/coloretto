@@ -5,6 +5,7 @@ export * from './game-cards-grid';
 export * from './game-filters';
 export * from './game-finish-waiting-modal';
 export * from './game-host-controls';
+export * from './game-paused-modal';
 export * from './game-results-modal';
 export * from './game-state-error-modal';
 export * from './hero-section';

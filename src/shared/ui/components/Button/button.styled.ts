@@ -9,6 +9,7 @@ export type ButtonStyleProps = {
   $size: ButtonSize;
   $fullWidth?: boolean;
   $fullHeight?: boolean;
+  $minWidth?: number;
   $width?: number;
   $buttonRadii: ButtonSize;
 };
@@ -37,5 +38,6 @@ export const StyledButton = styled.button<ButtonStyleProps>`
   ${({ $variant }) => ButtonVariantStyles[$variant]}
   ${({ $size }) => ButtonSizeStyles[$size]}
   height: ${({ $fullHeight, $height }) => ($fullHeight ? '100%' : $height ? `${$height}px` : 'auto')};
+  min-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'auto')};
   width: ${({ $fullWidth, $width }) => ($fullWidth ? '100%' : $width ? `${$width}px` : 'auto')};
 `;

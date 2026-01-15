@@ -60,7 +60,7 @@ export const JokerColorsModal = ({
                   {selectedIndicator ? (
                     <Image height={29} variant={selectedIndicator} width={27} />
                   ) : (
-                    <Flex height={29} style={{ border: '1px solid #424041', borderRadius: 6 }} width={27} />
+                    <Image height={29} variant='noColorIndicator' width={27} />
                   )}
                 </Flex>
 

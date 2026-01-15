@@ -5,12 +5,13 @@ import { useParams } from 'react-router';
 import { PlayerGameBar } from '../../features/player-gamebar';
 import { Components } from '../../shared';
 import { Page } from '../../shared/ui/components';
-import { useGetGameStateQuery, useGetPlayerForGameQuery } from '../../store/api/game-api';
+import { useGetGameStateQuery, useGetHostedGamesQuery, useGetPlayerForGameQuery } from '../../store/api/game-api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setGameState } from '../../store/slices/game-slice';
 import {
   GameCardSection,
   GameFinishWaitingModal,
+  GamePausedModal,
   GameResultsModal,
   GameStateErrorModal,
   OtherPlayerSection,
@@ -34,6 +35,10 @@ export const GamePage = () => {
     skip: !gameId,
   });
 
+  const { data: hostedGames = [], isLoading: isHostedGamesLoading } = useGetHostedGamesQuery(undefined, {
+    skip: !gameId,
+  });
+
   const {
     data,
     error: gameStateError,
@@ -54,6 +59,8 @@ export const GamePage = () => {
   const gameStateErrorMessage = serverStateError ?? getRtkQueryErrorMessage(gameStateError);
   const gameStatus = getUiGameStatus(data?.state);
   const isPaused = gameStatus === 'paused';
+  const isHost = hostedGames.some(game => game.gameId === gameId);
+  const shouldShowPauseModal = isPaused && !isHost && !isHostedGamesLoading;
   const playerHand = mapHandToUiCards(gameState.playerInfo?.playerHand ?? null);
   const turnDuration = gameState.turnDuration ?? 40;
   const turnStartTime = gameState.currentTurnStartTime || null;
@@ -202,6 +209,7 @@ export const GamePage = () => {
           />
         </Flex>
       </Flex>
+      <GamePausedModal open={!isGameStateError && shouldShowPauseModal} />
       <GameResultsModal gameId={gameId} open={!isGameStateError && isResultsReady} />
       <GameFinishWaitingModal open={!isGameStateError && shouldShowWaitingOtherPlayersModal} />
       <GameStateErrorModal gameId={gameId} message={gameStateErrorMessage} open={isGameStateError} />

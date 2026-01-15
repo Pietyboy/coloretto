@@ -103,62 +103,10 @@ export const GameHostControls = ({ gameId, gameStatus }: GameHostControlsProps) 
             size="sm"
             variant="primary"
             onClick={getHandleAction(gameStatus)}
+            minWidth={60}
           >
             {getButtonText(gameStatus)}
           </Button>
-        {/* {gameStatus === 'active' && (
-          <Button
-            disabled={isAnyHostActionLoading}
-            height={ButtonHeight}
-            size="sm"
-            variant="outline"
-            onClick={handlePauseGame}
-          >
-            Пауза
-          </Button>
-        )}
-        {gameStatus === 'paused' && (
-          <Button
-            disabled={isAnyHostActionLoading}
-            height={ButtonHeight}
-            size="sm"
-            variant="outline"
-            onClick={handleResumeGame}
-          >
-            Продолжить
-          </Button>
-        )} */}
-        {/* {gameStatus === 'unknown' && (
-          <>
-            <Button
-              disabled={isAnyHostActionLoading}
-              height={ButtonHeight}
-              size="sm"
-              variant="primary"
-              onClick={handleStartGame}
-            >
-              Начать
-            </Button>
-            <Button
-              disabled={isAnyHostActionLoading}
-              height={ButtonHeight}
-              size="sm"
-              variant="outline"
-              onClick={handlePauseGame}
-            >
-              Пауза
-            </Button>
-            <Button
-              disabled={isAnyHostActionLoading}
-              height={ButtonHeight}
-              size="sm"
-              variant="outline"
-              onClick={handleResumeGame}
-            >
-              Продолжить
-            </Button>
-          </>
-        )} */}
       </Flex>
   );
 };

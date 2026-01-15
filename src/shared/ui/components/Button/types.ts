@@ -5,6 +5,7 @@ export type ButtonSize = 'lg' | 'md' | 'sm';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
+  minWidth?: number;
   size?: ButtonSize;
   variant?: ButtonVariant;
 }

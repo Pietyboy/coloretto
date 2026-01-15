@@ -83,7 +83,7 @@ export const Header = ({
               {gamesMenuOpen && activeGames.length > 1 && (
                 <GameMenu>
                   {activeGames.map(game => (
-                    <button
+                    <Button
                       key={game.gameId}
                       type="button"
                       onClick={() => {
@@ -92,7 +92,7 @@ export const Header = ({
                       }}
                     >
                       {game.gameName}
-                    </button>
+                    </Button>
                   ))}
                 </GameMenu>
               )}

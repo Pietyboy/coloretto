@@ -8,6 +8,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullHeight?: boolean;
   fullWidth?: boolean;
   height?: number;
+  minWidth?: number;
   size?: ButtonSize;
   variant?: ButtonVariant;
   width?: number;
@@ -21,6 +22,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       fullHeight = false,
       fullWidth = false,
       height,
+      minWidth,
       size = 'md',
       variant = 'primary',
       width,
@@ -33,6 +35,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       $fullHeight={fullHeight}
       $fullWidth={fullWidth}
       $height={height}
+      $minWidth={minWidth}
       $size={size}
       $variant={variant}
       $width={width}
