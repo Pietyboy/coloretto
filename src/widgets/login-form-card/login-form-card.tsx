@@ -22,13 +22,14 @@ export const LoginFormCard = ({
   onFinish,
   onToggleMode,
 }: LoginFormCardProps) => (
-  <Card animation="none" width="30%">
+  <Card animation="none" width="30%" padding='none'>
     <Spin spinning={isLoading}>
       <Form
         form={form}
         layout="vertical"
         requiredMark={false}
         onFinish={onFinish}
+        padding='md'
       >
         <Flex direction="column" fullHeight gap={12} justify="space-between">
           <Flex gap={10}>
