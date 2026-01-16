@@ -17,7 +17,7 @@ export const Empty = ({
   imageStyle,
   message,
   messageSize = 'small',
-  messageTone = 'secondary',
+  messageTone = 'default',
   ...rest
 }: EmptyProps) => {
   const resolvedDescription = message ?? description;

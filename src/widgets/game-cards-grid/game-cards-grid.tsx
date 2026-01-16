@@ -18,6 +18,7 @@ export const GameCardsGrid = <T,>({
   renderItem,
 }: GameCardsGridProps<T>) => {
   const hasItems = items.length > 0;
+  console.log(items);
 
   return (
     <Flex direction="row" fullWidth gap={20} style={{ minHeight: 200, position: 'relative' }} wrap>

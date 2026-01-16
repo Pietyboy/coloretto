@@ -19,7 +19,7 @@ export const HomePage = () => {
   const [sortBy, setSortBy] = useState<SortFilter>('newest');
   const [maxPlayers, setMaxPlayers] = useState<number[]>([]);
 
-  const { data: gamesData = [], isLoading } = useGetGamesListQuery();
+  const { data: gamesData = [], isFetching, isLoading, refetch } = useGetGamesListQuery();
 
   const filteredGames = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -68,6 +68,7 @@ export const HomePage = () => {
       <Flex direction="column" gap={12} fullWidth>
         <GameFilters
           hasSeats={hasSeats}
+          isRefreshDisabled={isFetching}
           maxPlayers={maxPlayers}
           maxPlayersOptions={maxPlayersSelectOptions}
           search={search}
@@ -76,6 +77,7 @@ export const HomePage = () => {
           status={status}
           statusOptions={statusOptions}
           onMaxPlayersChange={setMaxPlayers}
+          onRefresh={refetch}
           onReset={resetFilters}
           onSearchChange={setSearch}
           onSortChange={value => setSortBy(value as SortFilter)}
@@ -84,7 +86,7 @@ export const HomePage = () => {
         />
         <GameCardsGrid
           emptyText={emptyText}
-          isLoading={isLoading}
+          isLoading={isLoading || isFetching}
           items={filteredGames}
           renderItem={(game) => <GameRoomCard key={game.gameId} game={game} />}
         />
