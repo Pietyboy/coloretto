@@ -172,9 +172,9 @@ export const GamePage = () => {
   }, [data?.state, dispatch, playerForGame?.nickname, playerForGame?.player_id, serverStateError]);
 
   return (
-    <Page>
-      <Flex fullWidth gap={50} style={GAME_PAGE_GRID_STYLE}>
-        <Flex fullHeight fullWidth>
+    <Page variant="game">
+      <Flex fullWidth style={GAME_PAGE_GRID_STYLE}>
+        <Flex fullHeight fullWidth minHeight={0}>
           <OtherPlayerSection
             isPaused={isPaused}
             otherPlayers={otherPlayers}

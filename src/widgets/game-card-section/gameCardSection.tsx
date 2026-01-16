@@ -233,7 +233,7 @@ export const GameCardSection = ({
 
   return (
     <>
-      <Flex direction="row" fullWidth height={269} justify="space-between">
+      <Flex direction="row" fullWidth height="clamp(240px, 36vh, 269px)" justify="space-between">
         {rows.filter(row => row.isActive).map(row => (
           <CardRow
             key={row.rowId}

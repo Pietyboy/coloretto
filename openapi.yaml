@@ -1,0 +1,841 @@
+openapi: 3.0.3
+info:
+  title: Coloretto API
+  version: 1.0.0
+  description: |
+    OpenAPI-спецификация для Coloretto.
+
+    Примечания:
+    - Все эндпоинты начинаются с `/api`.
+    - `/api/game/**` требует `Authorization: Bearer <accessToken>`.
+    - Refresh-токен хранится в httpOnly cookie `refreshToken` и используется в `/api/auth/refresh`.
+    - В ряде случаев бизнес-ошибка может прийти как `200` с `{ "error": "..." }` в теле ответа (зависит от SQL-функций).
+servers:
+  - url: http://localhost:3001/api
+    description: Локально
+  - url: https://coloretto-web-server-production.up.railway.app/api
+    description: В сети (Railway)
+
+tags:
+  - name: service
+  - name: auth
+  - name: user
+  - name: game
+
+paths:
+  /auth:
+    post:
+      tags: [auth]
+      summary: Вход (аутентификация)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRequest"
+      responses:
+        "200":
+          description: ОК (устанавливает cookie refreshToken)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Регистрация (создание пользователя)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRequest"
+      responses:
+        "200":
+          description: ОК (устанавливает cookie refreshToken)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /auth/refresh:
+    post:
+      tags: [auth]
+      summary: Обновить access-токен
+      description: |
+        По умолчанию refresh-токен берётся из cookie `refreshToken`.
+        Также поддерживается вариант передачи refresh-токена в body.
+      parameters:
+        - in: cookie
+          name: refreshToken
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "200":
+          description: ОК (устанавливает cookie refreshToken)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: Выход
+      responses:
+        "200":
+          description: ОК (очищает cookie refreshToken)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutResponse"
+
+  /user/create:
+    post:
+      tags: [user]
+      summary: Регистрация
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCredentials"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /user/check:
+    post:
+      tags: [user]
+      summary: Вход
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCredentials"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/list:
+    get:
+      tags: [game]
+      summary: Получить список игр
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameListItem"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/hosted:
+    get:
+      tags: [game]
+      summary: Получить список созданных игр
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameListItem"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/create/game:
+    post:
+      tags: [game]
+      summary: Создать игру
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGameRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateGameResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/delete:
+    post:
+      tags: [game]
+      summary: Удалить игру
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameIdRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/join:
+    post:
+      tags: [game]
+      summary: Присоединиться к игре
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JoinGameRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/create/player:
+    post:
+      tags: [game]
+      summary: Создать игрока в игре
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlayerRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatePlayerResponse"
+
+  /game/leave:
+    post:
+      tags: [game]
+      summary: Покинуть игру
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveGameRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/me/{gameId}:
+    get:
+      tags: [game]
+      summary: Получить информацию о текущем игроке в игре
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/state/{id}:
+    get:
+      tags: [game]
+      summary: Получить состояние игры
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameStateResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/turn/card:
+    post:
+      tags: [game]
+      summary: Сделать ход (положить карту в ряд)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TurnCardRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/turn/row:
+    post:
+      tags: [game]
+      summary: Сделать ход (взять ряд)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TurnRowRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/choose-colors:
+    post:
+      tags: [game]
+      summary: Выбрать цвета для подсчёта очков (финальный этап)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChooseColorsRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/joker/colors:
+    post:
+      tags: [game]
+      summary: Выбрать цвета джокеров (финальный этап)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChooseJokerColorsRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/finish/game:
+    post:
+      tags: [game]
+      summary: Завершить игру
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameIdRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/score/{id}:
+    get:
+      tags: [game]
+      summary: Получить результаты игры
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameScoresResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/{gameId}/card/{cardId}:
+    get:
+      tags: [game]
+      summary: Получить информацию о карте
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: gameId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameCardResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    ErrorResponse:
+      description: Ошибка
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    PingResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    LogoutResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        success:
+          type: boolean
+      required: [success]
+
+    AuthRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required: [username, password]
+
+    AuthResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        userId:
+          oneOf:
+            - type: integer
+            - type: string
+        username:
+          type: string
+        token:
+          type: string
+          description: Алиас для accessToken (обратная совместимость)
+        accessToken:
+          type: string
+      required: []
+
+    UserCredentials:
+      type: object
+      additionalProperties: false
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+      required: [login, password]
+
+    GameIdRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        gameId:
+          type: integer
+      required: [gameId]
+
+    JoinGameRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        gameId:
+          type: integer
+      required: [gameId]
+
+    CreatePlayerRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        gameId:
+          type: integer
+        nickname:
+          type: string
+      required: [gameId, nickname]
+
+    CreatePlayerResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        playerId:
+          type: integer
+        player_id:
+          type: integer
+        nickname:
+          type: string
+        error:
+          type: string
+
+    LeaveGameRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        gameId:
+          type: integer
+        playerId:
+          type: integer
+      required: [gameId, playerId]
+
+    TurnCardRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        gameId:
+          type: integer
+        playerId:
+          type: integer
+        rowId:
+          type: integer
+      required: [gameId, playerId, rowId]
+
+    TurnRowRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        gameId:
+          type: integer
+        playerId:
+          type: integer
+        rowId:
+          type: integer
+      required: [gameId, playerId, rowId]
+
+    ChooseColorsRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        gameId:
+          type: integer
+        playerId:
+          type: integer
+        colorIds:
+          type: array
+          items:
+            type: integer
+      required: [gameId, playerId, colorIds]
+
+    JokerChoice:
+      type: object
+      additionalProperties: false
+      properties:
+        card_id:
+          type: integer
+        color:
+          type: string
+      required: [card_id, color]
+
+    ChooseJokerColorsRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        gameId:
+          type: integer
+        playerId:
+          type: integer
+        choices:
+          type: array
+          items:
+            $ref: "#/components/schemas/JokerChoice"
+      required: [gameId, playerId, choices]
+
+    CreateGameRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        gameName:
+          type: string
+        maxSeatsCount:
+          type: integer
+        turnTime:
+          type: integer
+      required: [gameName, maxSeatsCount, turnTime]
+
+    CreateGameResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        gameId:
+          type: integer
+        error:
+          type: string
+
+    GameListItem:
+      type: object
+      additionalProperties: true
+      properties:
+        gameId:
+          type: integer
+        gameName:
+          type: string
+        startingDate:
+          type: string
+        maxPlayerCount:
+          type: integer
+        turnDuration:
+          type: integer
+        currentPlayersCount:
+          type: integer
+        gameStatus:
+          type: string
+
+    MeResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        inGame:
+          type: boolean
+        player_id:
+          type: integer
+          nullable: true
+        nickname:
+          type: string
+          nullable: true
+      required: [inGame]
+
+    GameStateResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        state:
+          $ref: "#/components/schemas/GameState"
+      required: [state]
+
+    GameState:
+      type: object
+      additionalProperties: true
+      properties:
+        error:
+          type: string
+        gameId:
+          type: integer
+        gameStatus:
+          type: string
+        status:
+          type: string
+        game_status:
+          type: string
+        maxPlayerCount:
+          type: integer
+        turnDuration:
+          type: integer
+        currentTurnStartTime:
+          type: string
+        remainingCardsCount:
+          type: integer
+        firstDeckCard:
+          type: object
+          additionalProperties: true
+          properties:
+            cardId:
+              type: integer
+        players:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        rows:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    GameScoresResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        scores:
+          description: Произвольная структура (нормализуется на клиенте)
+          nullable: true
+      required: [scores]
+
+    GameCardResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        cardId:
+          type: integer
+        color:
+          type: string
+        type:
+          type: string
