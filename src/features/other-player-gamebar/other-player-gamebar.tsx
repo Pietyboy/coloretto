@@ -52,7 +52,7 @@ export const OtherPlayerGameBar = (props: TPlayerGameBarProps) => {
       <Card animation="none" fullWidth padding="sm">
         {cards.length === 0 ? (
           <Flex align="center">
-            <Empty message="Карт нет" style={{ margin: 0 }} />
+            <Empty message="Карт нет" style={{ margin: 0 }} messageTone='secondary'/>
           </Flex>
         ) : (
           <IndicatorsGrid $columns={gridColumns}>

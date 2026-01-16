@@ -86,7 +86,7 @@ export const HomePage = () => {
         />
         <GameCardsGrid
           emptyText={emptyText}
-          isLoading={isLoading || isFetching}
+          isLoading={isLoading}
           items={filteredGames}
           renderItem={(game) => <GameRoomCard key={game.gameId} game={game} />}
         />

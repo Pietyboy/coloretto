@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import { Components } from '../../shared';
-import { GameHostControls } from '../../widgets';
 import { TGameStatus } from '../../widgets/game-host-controls/types';
 import { HandCardIndicator } from '../hand-card-indicator';
 import { Timer } from '../timer';
@@ -26,8 +25,8 @@ export const PlayerGameBar = (props: TPlayerGameBarProps) => {
   const [isRuleSidebarOpen, setRuleSidebarOpen] = useState(false);
   const {
     cards = [],
-    gameId,
-    gameStatus,
+    gameId: _gameId,
+    gameStatus: _gameStatus,
     isCurrentTurn = false,
     isPaused = false,
     turnDuration = 40,
@@ -46,7 +45,6 @@ export const PlayerGameBar = (props: TPlayerGameBarProps) => {
             )}
           </Flex>
         </Card>
-        <GameHostControls gameId={gameId} gameStatus={gameStatus}/>
       </Flex>
       <Flex align="center" direction="row" gap={5} fullWidth>
         <Card animation="none" fullWidth height={63}>
