@@ -216,6 +216,106 @@ paths:
         "401":
           $ref: "#/components/responses/ErrorResponse"
 
+  /game/start:
+    post:
+      tags: [game]
+      summary: Запустить игру (хост)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameIdRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/pause:
+    post:
+      tags: [game]
+      summary: Поставить игру на паузу (хост)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameIdRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/resume:
+    post:
+      tags: [game]
+      summary: Снять игру с паузы (хост)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameIdRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/reset:
+    post:
+      tags: [game]
+      summary: Сбросить игру в waiting (хост)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameIdRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
   /game/delete:
     post:
       tags: [game]
@@ -245,6 +345,15 @@ paths:
     post:
       tags: [game]
       summary: Присоединиться к игре
+      description: |
+        Подключение теперь выполняется через одну DB-функцию `game_join_game`.
+
+        Рекомендуемый сценарий:
+        1) Вызвать без никнейма: `{ "gameId": 123 }`.
+           - Если игрок уже существует, сервер вернёт `status: "success"`, `mode: "existing"`, `playerId`.
+           - Если нужен никнейм, сервер вернёт `status: "need_nickname"`, `message`, `gameId`.
+        2) Если получили `need_nickname`, повторить запрос с никнеймом: `{ "gameId": 123, "nickname": "Player 1" }`.
+           - При успехе вернёт `status: "success"`, `mode: "created"`, `playerId`.
       security:
         - bearerAuth: []
       requestBody:
@@ -270,6 +379,27 @@ paths:
     post:
       tags: [game]
       summary: Создать игрока в игре
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlayerRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatePlayerResponse"
+
+  /game/create-player:
+    post:
+      tags: [game]
+      summary: Создать игрока в игре (alias)
+      description: Алиас для `/api/game/create/player`.
       security:
         - bearerAuth: []
       requestBody:
@@ -359,6 +489,8 @@ paths:
     post:
       tags: [game]
       summary: Сделать ход (положить карту в ряд)
+      description: |
+        Важно: перед тем, как положить карту, нужно “открыть” верхнюю карту через `GET /api/game/{gameId}/card`.
       security:
         - bearerAuth: []
       requestBody:
@@ -409,6 +541,32 @@ paths:
     post:
       tags: [game]
       summary: Выбрать цвета для подсчёта очков (финальный этап)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChooseColorsRequest"
+      responses:
+        "200":
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /game/colors:
+    post:
+      tags: [game]
+      summary: Выбрать цвета для подсчёта очков (alias)
+      description: Алиас для `/api/game/choose-colors`.
       security:
         - bearerAuth: []
       requestBody:
@@ -502,20 +660,17 @@ paths:
         "401":
           $ref: "#/components/responses/ErrorResponse"
 
-  /game/{gameId}/card/{cardId}:
+  /game/{gameId}/card:
     get:
       tags: [game]
-      summary: Получить информацию о карте
+      summary: Получить информацию о верхней карте колоды
+      description: |
+        Возвращает верхнюю карту колоды для текущего пользователя и фиксирует на сервере, что игрок “посмотрел” карту.
       security:
         - bearerAuth: []
       parameters:
         - in: path
           name: gameId
-          required: true
-          schema:
-            type: integer
-        - in: path
-          name: cardId
           required: true
           schema:
             type: integer
@@ -622,6 +777,8 @@ components:
       properties:
         gameId:
           type: integer
+        nickname:
+          type: string
       required: [gameId]
 
     CreatePlayerRequest:
@@ -638,6 +795,14 @@ components:
       type: object
       additionalProperties: true
       properties:
+        status:
+          type: string
+        mode:
+          type: string
+        message:
+          type: string
+        gameId:
+          type: integer
         playerId:
           type: integer
         player_id:
@@ -653,9 +818,7 @@ components:
       properties:
         gameId:
           type: integer
-        playerId:
-          type: integer
-      required: [gameId, playerId]
+      required: [gameId]
 
     TurnCardRequest:
       type: object
@@ -663,11 +826,9 @@ components:
       properties:
         gameId:
           type: integer
-        playerId:
-          type: integer
         rowId:
           type: integer
-      required: [gameId, playerId, rowId]
+      required: [gameId, rowId]
 
     TurnRowRequest:
       type: object
@@ -675,11 +836,9 @@ components:
       properties:
         gameId:
           type: integer
-        playerId:
-          type: integer
         rowId:
           type: integer
-      required: [gameId, playerId, rowId]
+      required: [gameId, rowId]
 
     ChooseColorsRequest:
       type: object
@@ -687,13 +846,11 @@ components:
       properties:
         gameId:
           type: integer
-        playerId:
-          type: integer
         colorIds:
           type: array
           items:
             type: integer
-      required: [gameId, playerId, colorIds]
+      required: [gameId, colorIds]
 
     JokerChoice:
       type: object
@@ -711,31 +868,37 @@ components:
       properties:
         gameId:
           type: integer
-        playerId:
-          type: integer
         choices:
           type: array
           items:
             $ref: "#/components/schemas/JokerChoice"
-      required: [gameId, playerId, choices]
+      required: [gameId, choices]
 
     CreateGameRequest:
       type: object
       additionalProperties: false
       properties:
-        gameName:
+        name:
           type: string
-        maxSeatsCount:
+        seats:
           type: integer
-        turnTime:
+        turnDuration:
           type: integer
-      required: [gameName, maxSeatsCount, turnTime]
+        nickname:
+          type: string
+      required: [name, seats, turnDuration, nickname]
 
     CreateGameResponse:
       type: object
       additionalProperties: true
       properties:
+        status:
+          type: string
         gameId:
+          type: integer
+        playerId:
+          type: integer
+        player_id:
           type: integer
         error:
           type: string
@@ -787,6 +950,32 @@ components:
       properties:
         error:
           type: string
+        playersColorsStatus:
+          type: array
+          nullable: true
+          items:
+            type: object
+            additionalProperties: true
+        playersJokersStatus:
+          type: array
+          nullable: true
+          items:
+            type: object
+            additionalProperties: true
+        players_colors_status:
+          type: array
+          nullable: true
+          items:
+            type: object
+            additionalProperties: true
+        players_jokers_status:
+          type: array
+          nullable: true
+          items:
+            type: object
+            additionalProperties: true
+        isGameFinished:
+          type: boolean
         gameId:
           type: integer
         gameStatus:
@@ -801,6 +990,13 @@ components:
           type: integer
         currentTurnStartTime:
           type: string
+        serverNow:
+          description: Серверное время (epoch ms)
+          type: integer
+        turnEndsAt:
+          description: Время окончания хода (epoch ms)
+          type: integer
+          nullable: true
         remainingCardsCount:
           type: integer
         firstDeckCard:

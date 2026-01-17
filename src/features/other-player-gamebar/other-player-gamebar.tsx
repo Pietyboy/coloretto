@@ -13,6 +13,8 @@ type TPlayerGameBarProps = {
   isCurrentTurn?: boolean;
   isPaused?: boolean;
   playerName?: null | string;
+  serverNow?: null | number;
+  turnEndsAt?: null | number;
   turnDuration?: number;
   turnStartTime?: null | string;
 };
@@ -24,7 +26,9 @@ export const OtherPlayerGameBar = (props: TPlayerGameBarProps) => {
     isCurrentTurn = false,
     isPaused = false,
     playerName,
+    serverNow,
     turnDuration = 40,
+    turnEndsAt,
     turnStartTime,
   } = props;
   const displayName = playerName;
@@ -37,7 +41,13 @@ export const OtherPlayerGameBar = (props: TPlayerGameBarProps) => {
         <Card animation="none" height={65} padding="sm" width={80}>
           <Flex align="center" fullWidth fullHeight justify="center">
             {isCurrentTurn ? (
-              <Timer duration={turnDuration} paused={isPaused} startAt={turnStartTime} />
+              <Timer
+                duration={turnDuration}
+                paused={isPaused}
+                startAt={turnStartTime}
+                endAt={turnEndsAt}
+                serverNow={serverNow}
+              />
             ) : (
               <Image variant="lockIcon" width={25} />
             )}

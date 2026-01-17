@@ -24,29 +24,23 @@ const { Flex } = Components;
 
 type GameCardSectionProps = {
   cardsCount: number;
-  currentPlayerId: number;
   gameId: number;
   isColorModalOpen: boolean;
   isCurrentTurn: boolean;
   isJokerModalOpen: boolean;
   isPaused: boolean;
-  playerId: number;
   rows: TRow[];
-  topCard?: number;
   unresolvedJokers: TCard[];
 };
 
 export const GameCardSection = ({
   cardsCount,
-  currentPlayerId,
   gameId,
   isColorModalOpen,
   isCurrentTurn,
   isJokerModalOpen,
   isPaused,
-  playerId,
   rows,
-  topCard,
   unresolvedJokers,
 }: GameCardSectionProps) => {
   const [activeRowId, setActiveRowId] = useState<null | number>(null);
@@ -99,14 +93,13 @@ export const GameCardSection = ({
   };
 
   const handleRowDrop = async (rowId: number) => {
-    if (!draggingCard || !playerId || !gameId || !isMyTurn) return;
+    if (!draggingCard || !gameId || !isMyTurn) return;
     const row = rows.find(r => r.rowId === rowId);
     if (!row || row.cardsCount >= 3) return;
 
     try {
       await makeTurnCard({
         gameId,
-        playerId,
         rowId,
       }).unwrap();
     } catch (e) {
@@ -138,11 +131,10 @@ export const GameCardSection = ({
   };
 
   const handleConfirmTakeRow = async () => {
-    if (rowToTake === null || !gameId || !playerId) return;
+    if (rowToTake === null || !gameId) return;
     try {
       await makeTurnRow({
         gameId,
-        playerId,
         rowId: rowToTake,
       }).unwrap();
     } catch (e) {
@@ -167,7 +159,7 @@ export const GameCardSection = ({
   };
 
   const handleSubmitScoreColors = async () => {
-    if (!gameId || !currentPlayerId) return;
+    if (!gameId) return;
 
     const selected = scoreColorIds.filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
     const unique = new Set(selected);
@@ -183,7 +175,6 @@ export const GameCardSection = ({
       const result = await chooseColors({
         colorIds: selected,
         gameId,
-        playerId: currentPlayerId,
       }).unwrap();
 
       if (result.error) {
@@ -198,7 +189,7 @@ export const GameCardSection = ({
   };
 
   const handleSubmitJokerColors = async () => {
-    if (!gameId || !currentPlayerId) return;
+    if (!gameId) return;
 
     const choices = [];
     for (const joker of unresolvedJokers) {
@@ -217,7 +208,6 @@ export const GameCardSection = ({
       const result = await chooseJokerColors({
         choices,
         gameId,
-        playerId: currentPlayerId,
       }).unwrap();
 
       if (result.error) {
@@ -254,7 +244,6 @@ export const GameCardSection = ({
           count={cardsCount}
           gameId={gameId}
           isCurrentTurn={isMyTurn}
-          topCardId={topCard}
           onCardDragEnd={handleDragEndCard}
           onCardDragStart={isMyTurn ? handleDragStartCard : undefined}
           onRevealChange={setTopCardRevealed}

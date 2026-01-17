@@ -49,9 +49,9 @@ export const gameApi = baseApi.injectEndpoints({
         url: '/game/delete',
       }),
     }),
-    getGameCard: builder.query<TCard, { cardId: number; gameId: number }>({
-      query: ({ cardId, gameId }) => ({
-        url: `/game/${gameId}/card/${cardId}`,
+    getGameCard: builder.query<TCard, { gameId: number; cardId?: number }>({
+      query: ({ gameId }) => ({
+        url: `/game/${gameId}/card`,
       }),
     }),
     getGameScores: builder.query<TGameScoresApi, number>({
@@ -91,7 +91,7 @@ export const gameApi = baseApi.injectEndpoints({
         url: '/game/join',
       }),
     }),
-    makeTurnCard: builder.mutation<unknown, { gameId: number; playerId: number; rowId: number }>({
+    makeTurnCard: builder.mutation<unknown, { gameId: number; rowId: number }>({
       invalidatesTags: (result, error, { gameId }) => [{ id: gameId, type: 'Game' }],
       query: body => ({
         body,
@@ -99,7 +99,7 @@ export const gameApi = baseApi.injectEndpoints({
         url: '/game/turn/card',
       }),
     }),
-    makeTurnRow: builder.mutation<unknown, { gameId: number; playerId: number; rowId: number }>({
+    makeTurnRow: builder.mutation<unknown, { gameId: number; rowId: number }>({
       invalidatesTags: (result, error, { gameId }) => [{ id: gameId, type: 'Game' }],
       query: body => ({
         body,

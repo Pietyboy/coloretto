@@ -62,6 +62,13 @@ export const CreateGameModal = ({
           <Input appearance="ghostDark" placeholder="Название" />
         </Form.Item>
         <Form.Item
+          label="Ваш никнейм"
+          name="nickname"
+          rules={[{ message: 'Введите никнейм', required: true }]}
+        >
+          <Input appearance="ghostDark" placeholder="Никнейм" />
+        </Form.Item>
+        <Form.Item
           label="Количество игроков"
           name="maxSeatsCount"
           rules={[{ message: 'Выберите количество игроков', required: true }]}

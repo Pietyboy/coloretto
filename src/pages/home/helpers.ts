@@ -7,7 +7,7 @@ export const getStatus = (game: TGameApi): StatusFilter => {
   if (typeof statusCandidate === 'string') {
     const normalized = statusCandidate.toLowerCase();
     if (normalized.includes('finish')) return 'finished';
-    if (normalized.includes('wait')) return 'active';
+    if (normalized.includes('wait') || normalized.includes('wating')) return 'active';
     if (normalized.includes('pause')) return 'active';
     if (
       normalized.includes('active') ||

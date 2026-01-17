@@ -57,8 +57,8 @@ export type TGameState = {
     maxPlayerCount: number,
     turnDuration: number,
     rows: Row[],
-    firstDeckCard: {
-        cardId: number
+    firstDeckCard?: null | {
+        cardId?: number
     },
     remainingCardsCount: number,
     players: null | TPlayer[],
@@ -67,6 +67,8 @@ export type TGameState = {
     players_colors_status?: null | TPlayerColorsStatus[],
     players_jokers_status?: null | TPlayerJokersStatus[],
     currentTurnStartTime: string,
+    serverNow?: number,
+    turnEndsAt?: null | number,
     isGameFinished: boolean
 }
 
@@ -81,14 +83,17 @@ export type TDeleteGameResult = TCommonApi & Partial<{
 
 export type TCreateGameApi = Partial<{
     error: string;
+    status: string;
     gameId: number;
-    result: string;
+    playerId: number;
+    player_id: number;
 }>;
 
 export type TCreateGameQuery = {
-    gameName: string;
-    maxSeatsCount: number;
-    turnTime: number;
+    name: string;
+    seats: number;
+    turnDuration: number;
+    nickname: string;
 };
 
 export type TCreatePlayerQuery = {
@@ -110,9 +115,14 @@ export type TCreatePlayerResult = TCommonApi & Partial<{
 
 export type TJoinGameQuery = {
     gameId: number;
+    nickname?: string;
 };
 
 export type TJoinGameResult = TCommonApi & Partial<{
+    status: string;
+    mode: string;
+    message: string;
+    gameId: number;
     playerId: number;
     player_id: number;
 }>;
@@ -128,7 +138,6 @@ export type TGameActionApiQuery = {
 export type TChooseColorsQuery = {
     colorIds: number[];
     gameId: number;
-    playerId: number;
 };
 
 export type TChooseColorsResult = TCommonApi & Partial<{
@@ -145,7 +154,6 @@ export type TJokerColorChoice = {
 export type TChooseJokerColorsQuery = {
     choices: TJokerColorChoice[];
     gameId: number;
-    playerId: number;
 };
 
 export type TGameScoresApi = {

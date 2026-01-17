@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Flex, Typography } from '../../shared/ui/components';
 
 import { gugiFontStyle } from './constants';
-import { clampDuration, formatTime, getRemainingSeconds, parseStartAt } from './helpers';
+import { clampDuration, formatTime, getRemainingSeconds, getRemainingSecondsUntil, parseStartAt } from './helpers';
 
 const { Text } = Typography;
 
@@ -12,9 +12,11 @@ export type TimerProps = {
   onComplete?: () => void;
   paused?: boolean;
   startAt?: null | number | string;
+  endAt?: null | number | string;
+  serverNow?: null | number;
 };
 
-export const Timer = ({ duration, onComplete, paused = false, startAt }: TimerProps) => {
+export const Timer = ({ duration, endAt, onComplete, paused = false, serverNow, startAt }: TimerProps) => {
   const [timeLeft, setTimeLeft] = useState(() => clampDuration(duration));
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const fallbackStartRef = useRef<null | number>(null);
@@ -24,23 +26,58 @@ export const Timer = ({ duration, onComplete, paused = false, startAt }: TimerPr
   const lastRemainingRef = useRef(clampDuration(duration));
 
   const startAtMs = useMemo(() => parseStartAt(startAt), [startAt]);
+  const endAtMs = useMemo(() => parseStartAt(endAt), [endAt]);
+
+  const serverNowRef = useRef<null | number>(null);
+  const perfNowRef = useRef<null | number>(null);
+
+  useEffect(() => {
+    if (typeof serverNow === 'number' && Number.isFinite(serverNow)) {
+      serverNowRef.current = serverNow;
+      perfNowRef.current = performance.now();
+      return;
+    }
+
+    serverNowRef.current = null;
+    perfNowRef.current = null;
+  }, [serverNow]);
+
+  const getNowMs = () => {
+    const serverBase = serverNowRef.current;
+    const perfBase = perfNowRef.current;
+
+    if (typeof serverBase === 'number' && typeof perfBase === 'number') {
+      return serverBase + (performance.now() - perfBase);
+    }
+
+    return Date.now();
+  };
 
   useEffect(() => {
     if (startAtMs === null) {
-      fallbackStartRef.current = Date.now();
+      fallbackStartRef.current = getNowMs();
     }
 
     const startKey = startAtMs ?? fallbackStartRef.current;
-    const hasNewStart = startKey !== null && startKey !== lastStartRef.current;
+    const resolvedEndAt = endAtMs ?? (startKey !== null ? startKey + duration * 1000 : null);
+    const tickKey = resolvedEndAt ?? startKey;
+    const hasNewStart = tickKey !== null && tickKey !== lastStartRef.current;
 
     if (hasNewStart) {
-      lastStartRef.current = startKey;
+      lastStartRef.current = tickKey;
       pauseOffsetRef.current = 0;
       pausedAtRef.current = null;
     }
 
+    if (typeof resolvedEndAt === 'number' && Number.isFinite(resolvedEndAt)) {
+      const nextRemaining = getRemainingSecondsUntil(resolvedEndAt, getNowMs(), pauseOffsetRef.current);
+      lastRemainingRef.current = nextRemaining;
+      setTimeLeft(nextRemaining);
+      return;
+    }
+
     if (startKey !== null) {
-      const nextRemaining = getRemainingSeconds(duration, startKey, pauseOffsetRef.current);
+      const nextRemaining = getRemainingSeconds(duration, startKey, getNowMs(), pauseOffsetRef.current);
       lastRemainingRef.current = nextRemaining;
       setTimeLeft(nextRemaining);
       return;
@@ -49,19 +86,19 @@ export const Timer = ({ duration, onComplete, paused = false, startAt }: TimerPr
     const nextRemaining = clampDuration(duration);
     lastRemainingRef.current = nextRemaining;
     setTimeLeft(nextRemaining);
-  }, [duration, startAtMs]);
+  }, [duration, endAtMs, startAtMs]);
 
   useEffect(() => {
     if (!paused) {
       if (pausedAtRef.current !== null) {
-        pauseOffsetRef.current += Date.now() - pausedAtRef.current;
+        pauseOffsetRef.current += getNowMs() - pausedAtRef.current;
         pausedAtRef.current = null;
       }
       return;
     }
 
     if (pausedAtRef.current === null) {
-      pausedAtRef.current = Date.now();
+      pausedAtRef.current = getNowMs();
     }
   }, [paused]);
 
@@ -72,9 +109,13 @@ export const Timer = ({ duration, onComplete, paused = false, startAt }: TimerPr
 
     const startKey = startAtMs ?? fallbackStartRef.current;
     if (startKey === null) return undefined;
+    const resolvedEndAt = endAtMs ?? startKey + duration * 1000;
 
     const tick = () => {
-      const remaining = getRemainingSeconds(duration, startKey, pauseOffsetRef.current);
+      const remaining =
+        typeof resolvedEndAt === 'number' && Number.isFinite(resolvedEndAt)
+          ? getRemainingSecondsUntil(resolvedEndAt, getNowMs(), pauseOffsetRef.current)
+          : getRemainingSeconds(duration, startKey, getNowMs(), pauseOffsetRef.current);
       const prevRemaining = lastRemainingRef.current;
       lastRemainingRef.current = remaining;
       setTimeLeft(remaining);
@@ -94,7 +135,7 @@ export const Timer = ({ duration, onComplete, paused = false, startAt }: TimerPr
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [duration, onComplete, paused, startAtMs]);
+  }, [duration, endAtMs, onComplete, paused, startAtMs]);
 
   const formatted = useMemo(() => formatTime(timeLeft), [timeLeft]);
 

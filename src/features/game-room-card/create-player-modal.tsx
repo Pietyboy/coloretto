@@ -58,7 +58,7 @@ export const CreatePlayerModal = ({
         <Form.Item
           label="Никнейм"
           name="nickname"
-          rules={[{ message: 'Введите никнейм', required: true }]}
+          rules={[{ message: 'Введите никнейм', required: true, whitespace: true }]}
         >
           <Input appearance="ghostDark" placeholder="Ваш никнейм" />
         </Form.Item>

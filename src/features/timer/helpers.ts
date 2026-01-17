@@ -19,14 +19,24 @@ export const parseStartAt = (value?: null | number | string) => {
   return null;
 };
 
-export const getRemainingSeconds = (duration: number, startAtMs: number, pauseOffsetMs = 0) => {
+export const getRemainingSeconds = (duration: number, startAtMs: number, nowMs: number, pauseOffsetMs = 0) => {
   if (!Number.isFinite(duration) || duration <= 0) {
     return 0;
   }
 
-  const elapsedMs = Math.max(0, Date.now() - startAtMs - pauseOffsetMs);
+  const elapsedMs = Math.max(0, nowMs - startAtMs - pauseOffsetMs);
   const remaining = Math.ceil(duration - elapsedMs / 1000);
 
+  return clampDuration(remaining);
+};
+
+export const getRemainingSecondsUntil = (endAtMs: number, nowMs: number, pauseOffsetMs = 0) => {
+  if (!Number.isFinite(endAtMs)) {
+    return 0;
+  }
+
+  const remainingMs = endAtMs - (nowMs - pauseOffsetMs);
+  const remaining = Math.ceil(remainingMs / 1000);
   return clampDuration(remaining);
 };
 

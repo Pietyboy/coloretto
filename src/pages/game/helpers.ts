@@ -13,7 +13,7 @@ export const getUiGameStatus = (state: unknown): TGameStatus => {
 
   if (typeof candidate === 'string') {
     const normalized = candidate.toLowerCase();
-    if (normalized.includes('wait')) return 'waiting';
+    if (normalized.includes('wait') || normalized.includes('wating')) return 'waiting';
     if (normalized.includes('pause')) return 'paused';
     if (normalized.includes('finish')) return 'finished';
     if (normalized.includes('progress') || normalized.includes('in_progress') || normalized.includes('inprogress')) return 'active';
@@ -67,7 +67,6 @@ export const MapGameData = (data: TGameStateApi, playerId?: number, playerNickna
       isActive: row.isActive ?? true,
       rowId: row.rowId,
     })) ?? [],
-    topCard: data.firstDeckCard?.cardId,
     turnDuration: data.turnDuration,
   };
 };

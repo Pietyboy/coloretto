@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 import { PlayerGameBar } from '../../features/player-gamebar';
+import { useNotify } from '../../hooks/useNotify';
 import { Components } from '../../shared';
 import { Page } from '../../shared/ui/components';
-import { useGetGameStateQuery, useGetHostedGamesQuery, useGetPlayerForGameQuery } from '../../store/api/game-api';
+import { useGetGameStateQuery, useGetHostedGamesQuery, useGetPlayerForGameQuery, useStartGameMutation } from '../../store/api/game-api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setGameState } from '../../store/slices/game-slice';
 import {
@@ -25,10 +26,14 @@ const { Flex } = Components;
 export const GamePage = () => {
   const params = useParams();
   const dispatch = useAppDispatch();
+  const notify = useNotify();
   const gameState = useAppSelector(state => state.game);
   const gameId = Number(params.gameId);
 
   const [stopPolling, setStopPolling] = useState(false);
+  const [autoStartRequested, setAutoStartRequested] = useState(false);
+
+  const [startGame] = useStartGameMutation();
 
   const { data: playerForGame } = useGetPlayerForGameQuery(gameId, {
     refetchOnMountOrArgChange: true,
@@ -64,6 +69,8 @@ export const GamePage = () => {
   const playerHand = mapHandToUiCards(gameState.playerInfo?.playerHand ?? null);
   const turnDuration = gameState.turnDuration ?? 40;
   const turnStartTime = gameState.currentTurnStartTime || null;
+  const serverNow = typeof data?.state?.serverNow === 'number' ? data?.state?.serverNow : null;
+  const turnEndsAt = typeof data?.state?.turnEndsAt === 'number' ? data?.state?.turnEndsAt : null;
 
   const otherPlayers = gameState.otherPlayersInfo.map(player => ({
     ...player,
@@ -76,6 +83,19 @@ export const GamePage = () => {
 
   const currentPlayerId = playerForGame?.player_id ?? gameState.playerInfo?.playerId ?? null;
   const playersFromState = Array.isArray(data?.state?.players) ? data?.state?.players : null;
+  const maxPlayerCountFromStateRaw =
+    data?.state?.maxPlayerCount
+    ?? (data?.state as unknown as Record<string, unknown> | undefined)?.max_player_count;
+  const maxPlayerCountFromState = Number(maxPlayerCountFromStateRaw);
+  const playersCountFromState = playersFromState ? playersFromState.length : null;
+  const isReadyToAutoStart =
+    isHost
+    && !isHostedGamesLoading
+    && gameStatus === 'waiting'
+    && Number.isFinite(maxPlayerCountFromState)
+    && maxPlayerCountFromState > 0
+    && playersCountFromState === maxPlayerCountFromState;
+
   const currentPlayerFromState =
     currentPlayerId && playersFromState
       ? playersFromState.find(player => player.playerId === currentPlayerId) ?? null
@@ -157,6 +177,7 @@ export const GamePage = () => {
 
   useEffect(() => {
     setStopPolling(false);
+    setAutoStartRequested(false);
   }, [gameId]);
 
   useEffect(() => {
@@ -171,6 +192,23 @@ export const GamePage = () => {
     }
   }, [data?.state, dispatch, playerForGame?.nickname, playerForGame?.player_id, serverStateError]);
 
+  useEffect(() => {
+    if (!gameId || autoStartRequested || !isReadyToAutoStart) return;
+
+    setAutoStartRequested(true);
+
+    startGame({ gameId })
+      .unwrap()
+      .then((result) => {
+        if (result && typeof result === 'object' && 'error' in result && result.error) {
+          notify('warning', String(result.error));
+        }
+      })
+      .catch(() => {
+        notify('error', 'Не удалось автоматически запустить игру');
+      });
+  }, [autoStartRequested, gameId, isReadyToAutoStart, notify, startGame]);
+
   return (
     <Page variant="game">
       <Flex fullWidth style={GAME_PAGE_GRID_STYLE}>
@@ -178,22 +216,21 @@ export const GamePage = () => {
           <OtherPlayerSection
             isPaused={isPaused}
             otherPlayers={otherPlayers}
+            serverNow={serverNow}
             turnDuration={turnDuration}
+            turnEndsAt={turnEndsAt}
             turnStartTime={turnStartTime}
           />
         </Flex>
         <Flex align="center" fullWidth justify="center">
           <GameCardSection
             cardsCount={gameState.cardsCount}
-            currentPlayerId={currentPlayerId ?? -1}
             gameId={gameId}
             isColorModalOpen={!isGameStateError && shouldShowChooseColorsModal}
             isCurrentTurn={gameState.playerInfo?.isCurrentTurn ?? false}
             isJokerModalOpen={!isGameStateError && shouldShowJokerColorsModal}
             isPaused={isPaused}
-            playerId={gameState.playerInfo?.playerId ?? -1}
             rows={gameState.rows}
-            topCard={gameState.topCard}
             unresolvedJokers={unresolvedJokers}
           />
         </Flex>
@@ -204,7 +241,9 @@ export const GamePage = () => {
             gameStatus={gameStatus}
             isCurrentTurn={!!gameState.playerInfo?.isCurrentTurn}
             isPaused={isPaused}
+            serverNow={serverNow}
             turnDuration={turnDuration}
+            turnEndsAt={turnEndsAt}
             turnStartTime={turnStartTime}
           />
         </Flex>

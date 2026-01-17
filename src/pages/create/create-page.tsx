@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
 
+import { useNavigate } from 'react-router';
+
 import { GameRoomCard } from '../../features/game-room-card';
 import { useNotify } from '../../hooks/useNotify';
 import { Components } from '../../shared';
-import { removeActiveGame } from '../../shared/lib/active-games';
+import { addActiveGame, removeActiveGame } from '../../shared/lib/active-games';
 import { Page } from '../../shared/ui/components';
 import {
   useCreateGameMutation,
@@ -31,6 +33,7 @@ import type { SortFilter, StatusFilter } from './types';
 const { Button, Flex, Form } = Components;
 
 export const CreateGamePage = () => {
+  const navigate = useNavigate();
   const username = useAppSelector(state => state.profile.username);
   const notify = useNotify();
 
@@ -108,13 +111,33 @@ export const CreateGamePage = () => {
   const handleCreate = async (values: CreateGameFormValues) => {
     setCreateError(null);
     try {
-      const { gameName, maxSeatsCount, turnTime } = values;
-      const result = await createGame({ gameName, maxSeatsCount, turnTime }).unwrap();
+      const { gameName, maxSeatsCount, nickname, turnTime } = values;
+      const result = await createGame({
+        name: gameName,
+        nickname,
+        seats: maxSeatsCount,
+        turnDuration: turnTime,
+      }).unwrap();
       const error = (result as { error?: unknown })?.error;
       if (typeof error === 'string' && error.trim()) {
         setCreateError(error);
         return;
       }
+
+      const status = (result as { status?: unknown })?.status;
+      const gameIdRaw =
+        (result as { gameId?: unknown; game_id?: unknown })?.gameId ??
+        (result as { game_id?: unknown })?.game_id;
+      const gameId = typeof gameIdRaw === 'number' ? gameIdRaw : Number(gameIdRaw);
+
+      if (status === 'success' && Number.isFinite(gameId) && gameId > 0) {
+        notify('success', 'Игра создана');
+        addActiveGame({ gameId, gameName });
+        closeCreateModal();
+        navigate(`/game/${gameId}`);
+        return;
+      }
+
       notify('success', 'Игра создана');
       closeCreateModal();
     } catch (err) {

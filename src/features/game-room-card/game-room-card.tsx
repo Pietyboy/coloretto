@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import { useNotify } from '../../hooks/useNotify';
 import { Components } from '../../shared';
 import { addActiveGame } from '../../shared/lib/active-games';
-import { useCreateNewPlayerMutation, useJoinGameMutation } from '../../store/api/game-api';
+import { useJoinGameMutation } from '../../store/api/game-api';
 import { useAppSelector } from '../../store/hooks';
 
 import { CreatePlayerModal } from './create-player-modal';
@@ -30,9 +30,8 @@ export const GameRoomCard = ({ game, onDelete }: TGameRoomCard) => {
   const [createPlayerForm] = Form.useForm<CreatePlayerFormValues>();
 
   const [joinGame, { isLoading: isJoining }] = useJoinGameMutation();
-  const [createNewPlayer, { isLoading: isCreatingPlayer }] = useCreateNewPlayerMutation();
 
-  const isConnecting = isJoining || isCreatingPlayer;
+  const isConnecting = isJoining;
   const gameTitle = game.gameName || game.name || `Игра ${game.gameId}`;
   const playersCountLabel = onDelete
     ? `${game.maxPlayerCount}`
@@ -55,7 +54,7 @@ export const GameRoomCard = ({ game, onDelete }: TGameRoomCard) => {
       }
 
       const status = (result as { status?: unknown })?.status;
-      if (status === 'need_player') {
+      if (status === 'need_nickname' || status === 'need_player') {
         setCreatePlayerModalOpen(true);
         createPlayerForm.setFieldsValue({ nickname: username || '' });
         return;
@@ -92,7 +91,12 @@ export const GameRoomCard = ({ game, onDelete }: TGameRoomCard) => {
     setCreatePlayerError(null);
 
     try {
-      const result = await createNewPlayer({ gameId: game.gameId, nickname }).unwrap();
+      const trimmed = nickname.trim();
+      if (!trimmed) {
+        setCreatePlayerError('Введите никнейм');
+        return;
+      }
+      const result = await joinGame({ gameId: game.gameId, nickname: trimmed }).unwrap();
       const error = (result as { error?: unknown })?.error;
       if (hasTextError(error)) {
         setCreatePlayerError(error);
@@ -109,6 +113,12 @@ export const GameRoomCard = ({ game, onDelete }: TGameRoomCard) => {
         handleCancelCreatePlayer();
         notify('success', 'Вы подключились к игре');
         connectToGame();
+        return;
+      }
+
+      const message = (result as { message?: unknown })?.message;
+      if (hasTextError(message)) {
+        setCreatePlayerError(message);
         return;
       }
 
@@ -154,7 +164,7 @@ export const GameRoomCard = ({ game, onDelete }: TGameRoomCard) => {
         error={createPlayerError}
         form={createPlayerForm}
         isOpen={createPlayerModalOpen}
-        isSubmitting={isCreatingPlayer}
+        isSubmitting={isJoining}
         onCancel={handleCancelCreatePlayer}
         onFinish={handleSubmitCreatePlayer}
         onValuesChange={() => setCreatePlayerError(null)}

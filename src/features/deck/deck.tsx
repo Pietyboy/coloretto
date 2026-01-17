@@ -17,7 +17,6 @@ export type DeckProps = {
   canReveal?: boolean;
   isCurrentTurn: boolean;
   gameId?: number;
-  topCardId?: number;
   onCardDragStart?: (card: TRevealedCard & { variant: ImageVariant }) => void;
   onCardDragEnd?: () => void;
   onRevealChange?: (isRevealed: boolean) => void;
@@ -35,7 +34,6 @@ export const Deck = ({
   onRevealBlocked,
   onRevealChange,
   onRevealError,
-  topCardId,
 }: DeckProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [revealedVariant, setRevealedVariant] = useState<ImageVariant | null>(null);
@@ -63,7 +61,7 @@ export const Deck = ({
     setRevealedVariant(null);
     setRevealedCard(null);
     onRevealChange?.(false);
-  }, [gameId, onRevealChange, topCardId]);
+  }, [count, gameId, onRevealChange]);
 
   useEffect(() => {
     if (!isCurrentTurn) {
@@ -75,7 +73,7 @@ export const Deck = ({
   }, [isCurrentTurn, onRevealChange]);
 
   const handleFlip = async () => {
-    if (!topCardId || !gameId || isFetching) return;
+    if (!gameId || isFetching) return;
     if (isDeckEmpty) return;
 
     if (revealedVariant) return;
@@ -86,7 +84,7 @@ export const Deck = ({
 
     try {
       onRevealChange?.(true);
-      await loadTopCard({ cardId: topCardId, gameId }).unwrap();
+      await loadTopCard({ gameId }).unwrap();
     } catch (e) {
       const message =
         typeof e === 'object' && e && 'data' in e && typeof (e as { data?: unknown }).data === 'object'
@@ -120,7 +118,7 @@ export const Deck = ({
         style={{
           cursor: isDraggable
             ? 'grab'
-            : isCurrentTurn && topCardId && gameId
+            : isCurrentTurn && !isDeckEmpty && gameId
               ? canReveal
                 ? 'pointer'
                 : 'not-allowed'
